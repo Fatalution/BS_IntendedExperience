@@ -1,0 +1,7 @@
+bin/
+obj/
+.idea/
+.vs/
+*.user
+*.csproj.user
+.claude/settings.local.json
