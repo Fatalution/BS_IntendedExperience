@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Settings;
 using IntendedExperience.Core;
 using SongCore;
+using UnityEngine;
 using Zenject;
 
 namespace IntendedExperience.UI;
@@ -17,23 +17,28 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 {
     private const string MenuName = "Intended Experience";
     private const string ResourcePath = "IntendedExperience.UI.SettingsMenu.bsml";
+    private const string RowResourcePath = "IntendedExperience.UI.ExcludedMapRow.bsml";
     private const string CustomLevelPrefix = "custom_level_";
 
     private readonly BSMLSettings bsmlSettings;
+    private readonly BSMLParser bsmlParser;
     private readonly BeatmapLevelsModel beatmapLevelsModel;
     private readonly PluginConfig config;
     private readonly MapExclusions mapExclusions;
+    private readonly string rowTemplate;
 
-    [UIComponent("excluded-list")]
-    private readonly CustomCellListTableData excludedList = null!;
+    [UIObject("excluded-rows")]
+    private readonly GameObject excludedRows = null!;
 
-    public SettingsMenu(BSMLSettings bsmlSettings, BeatmapLevelsModel beatmapLevelsModel, PluginConfig config,
-        MapExclusions mapExclusions)
+    public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
+        PluginConfig config, MapExclusions mapExclusions)
     {
         this.bsmlSettings = bsmlSettings;
+        this.bsmlParser = bsmlParser;
         this.beatmapLevelsModel = beatmapLevelsModel;
         this.config = config;
         this.mapExclusions = mapExclusions;
+        rowTemplate = Utilities.GetResourceContent(typeof(SettingsMenu).Assembly, RowResourcePath);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -51,10 +56,10 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("tint-play-button")]
     public bool TintPlayButton { get => config.TintPlayButton; set => config.TintPlayButton = value; }
 
-    // ---- Exclusions ----
-    [UIValue("excluded-maps")]
-    public List<object> ExcludedMaps { get; } = new();
+    [UIValue("show-play-button-tooltip")]
+    public bool ShowPlayButtonTooltip { get => config.ShowPlayButtonTooltip; set => config.ShowPlayButtonTooltip = value; }
 
+    // ---- Exclusions ----
     [UIValue("exclusions-text")]
     public string ExclusionsText => mapExclusions.LevelIds.Count == 0
         ? "Excluded maps: none"
@@ -62,7 +67,6 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     public void Initialize()
     {
-        RebuildExcludedMaps();
         bsmlSettings.AddSettingsMenu(MenuName, ResourcePath, this);
         mapExclusions.Changed += OnExclusionsChanged;
         Loader.SongsLoadedEvent += OnSongsLoaded;
@@ -86,18 +90,27 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     private void OnExclusionsChanged()
     {
-        RebuildExcludedMaps();
-        if (excludedList != null)
-            excludedList.TableView.ReloadData();
+        RebuildRows();
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExclusionsText)));
     }
 
-    private void RebuildExcludedMaps()
+    // One plain row per map inside the page's own scroll view; a nested list view doesn't lay out there.
+    private void RebuildRows()
     {
-        ExcludedMaps.Clear();
-        ExcludedMaps.AddRange(mapExclusions.LevelIds
-            .Select(levelId => new ExcludedMapCell(levelId, DisplayName(levelId), mapExclusions))
-            .OrderBy(cell => cell.MapName, StringComparer.OrdinalIgnoreCase));
+        if (excludedRows == null)
+            return;
+
+        foreach (Transform row in excludedRows.transform)
+        {
+            row.gameObject.SetActive(false);
+            UnityEngine.Object.Destroy(row.gameObject);
+        }
+
+        var rows = mapExclusions.LevelIds
+            .Select(levelId => new ExcludedMapRow(levelId, DisplayName(levelId), mapExclusions))
+            .OrderBy(row => row.MapName, StringComparer.OrdinalIgnoreCase);
+        foreach (var row in rows)
+            bsmlParser.Parse(rowTemplate, excludedRows, row);
     }
 
     // Maps that aren't loaded (deleted, or SongCore still loading) fall back to their hash.
@@ -111,13 +124,13 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         return $"{level.songName} <size=80%>- {level.songAuthorName}</size>{mappers}";
     }
 
-    /// <summary>One row of the excluded-maps list.</summary>
-    private class ExcludedMapCell
+    /// <summary>Host for one excluded-map row.</summary>
+    private class ExcludedMapRow
     {
         private readonly string levelId;
         private readonly MapExclusions mapExclusions;
 
-        public ExcludedMapCell(string levelId, string mapName, MapExclusions mapExclusions)
+        public ExcludedMapRow(string levelId, string mapName, MapExclusions mapExclusions)
         {
             this.levelId = levelId;
             this.mapExclusions = mapExclusions;

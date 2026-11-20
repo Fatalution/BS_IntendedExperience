@@ -15,16 +15,16 @@
     </horizontal>
     <toggle-setting text="Tint Play button" value="tint-play-button" apply-on-change="true"
                     hover-hint="Turns the Play button orange when launching will apply intended settings."/>
+    <toggle-setting text="Play button tooltip" value="show-play-button-tooltip" apply-on-change="true"
+                    hover-hint="When the Play button is orange, hovering it lists the settings that will be applied."/>
 
-    <horizontal pref-height="8">
-        <text text="~exclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>
-        <button text="Clear all" on-click="clear-exclusions" hover-hint="Remove every map from the exclusion list."/>
-    </horizontal>
-    <custom-list id="excluded-list" contents="~excluded-maps" visible-cells="5" cell-size="7" list-width="90"
-                 show-scrollbar="true" clickable-cells="false">
-        <horizontal pref-width="90" pref-height="7" child-expand-width="false">
-            <text text="~map-name" font-size="3.5" pref-width="74" overflow-mode="Ellipsis" word-wrapping="false" rich-text="true"/>
-            <button text="Remove" pref-width="16" pref-height="6" on-click="remove"/>
+    <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">
+        <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
+            <text text="~exclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>
         </horizontal>
-    </custom-list>
+        <button text="Clear all" min-width="18" pref-width="18" pref-height="6" on-click="clear-exclusions"
+                hover-hint="Remove every map from the exclusion list."/>
+    </horizontal>
+    <vertical id="excluded-rows" spacing="1" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
+              child-control-width="true" child-expand-width="true"/>
 </settings-container>

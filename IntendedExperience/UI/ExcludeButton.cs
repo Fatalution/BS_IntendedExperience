@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using UnityEngine;
 using Zenject;
 
 namespace IntendedExperience.UI;
@@ -16,6 +17,9 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     private readonly BSMLParser bsmlParser;
     private readonly LaunchPreview launchPreview;
     private readonly StandardLevelDetailViewController levelDetailViewController;
+
+    [UIObject("exclude-button")]
+    private readonly GameObject excludeButton = null!;
 
     public ExcludeButton(BSMLParser bsmlParser, LaunchPreview launchPreview,
         StandardLevelDetailViewController levelDetailViewController)
@@ -35,14 +39,20 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
         var levelDetailView = levelDetailViewController.GetComponentInChildren<StandardLevelDetailView>(true);
         var buttonRow = levelDetailView.actionButton.transform.parent.gameObject;
         bsmlParser.Parse(Utilities.GetResourceContent(typeof(ExcludeButton).Assembly, ResourcePath), buttonRow, this);
-        launchPreview.Changed += NotifyButtonTextChanged;
+        launchPreview.Changed += Refresh;
+        Refresh();
     }
 
-    public void Dispose() => launchPreview.Changed -= NotifyButtonTextChanged;
+    public void Dispose() => launchPreview.Changed -= Refresh;
 
     [UIAction("toggle-exclusion")]
     private void ToggleExclusion() => launchPreview.SetExcluded(!launchPreview.Excluded);
 
-    private void NotifyButtonTextChanged() =>
+    // Only shown for maps the mod can affect (v3+ environments).
+    private void Refresh()
+    {
+        if (excludeButton != null)
+            excludeButton.SetActive(launchPreview.Qualifies);
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonText)));
+    }
 }

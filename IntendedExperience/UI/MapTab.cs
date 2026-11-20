@@ -23,8 +23,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    [UIValue("has-level")]
-    public bool HasLevel => launchPreview.Level != null;
+    [UIValue("qualifies")]
+    public bool Qualifies => launchPreview.Qualifies;
 
     [UIValue("excluded")]
     public bool Excluded
@@ -40,6 +40,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
         {
             if (launchPreview.Level == null)
                 return "No map selected.";
+            if (!Qualifies)
+                return "Not a v3+ environment: your own settings will be used.";
             if (Excluded)
                 return "Excluded: your own settings will be used.";
 
@@ -65,7 +67,7 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 
     private void NotifyAllChanged()
     {
-        NotifyChanged(nameof(HasLevel));
+        NotifyChanged(nameof(Qualifies));
         NotifyChanged(nameof(Excluded));
         NotifyChanged(nameof(StatusText));
     }

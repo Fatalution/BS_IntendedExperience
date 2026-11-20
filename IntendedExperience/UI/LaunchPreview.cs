@@ -27,6 +27,9 @@ internal class LaunchPreview : ITickable
     public LaunchPlan Plan { get; private set; }
     public bool Excluded { get; private set; }
 
+    /// <summary>The selected map uses a v3+ environment, so the mod can affect it.</summary>
+    public bool Qualifies { get; private set; }
+
     // Polled so changes made anywhere (gameplay setup, mod settings, exclusions) show up immediately.
     public void Tick()
     {
@@ -34,14 +37,17 @@ internal class LaunchPreview : ITickable
             return;
 
         var level = levelDetailViewController.beatmapLevel;
-        var plan = level == null ? default : PlanFor(level, levelDetailViewController.beatmapKey);
+        var key = levelDetailViewController.beatmapKey;
+        var plan = level == null ? default : PlanFor(level, key);
         bool excluded = level != null && mapExclusions.IsExcluded(level.levelID);
-        if (level == Level && plan == Plan && excluded == Excluded)
+        bool qualifies = level != null && launchPlanner.UsesGroupLighting(level, key);
+        if (level == Level && plan == Plan && excluded == Excluded && qualifies == Qualifies)
             return;
 
         Level = level;
         Plan = plan;
         Excluded = excluded;
+        Qualifies = qualifies;
         Changed?.Invoke();
     }
 

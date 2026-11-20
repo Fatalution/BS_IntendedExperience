@@ -20,7 +20,7 @@ The mod changes the settings the game receives when the level starts, not the se
 
 ## In game
 
-- **Settings → Mod Settings → Intended Experience**: a master switch, the two settings above, the Play button tint, and the list of excluded maps, each with a Remove button.
+- **Settings → Mod Settings → Intended Experience**: a master switch, the two settings above, the Play button tint and its tooltip, and the list of excluded maps, each with a Remove button.
 - **Excluding a map**: mark a map so it always plays with your own settings, for example a ranked map you know by heart or one with a color scheme you dislike. You can do it in two places:
   - the **IE** button next to Play (struck out = excluded)
   - **Gameplay Setup → Mods → Intended Experience**, which also lists what the launch will change

@@ -38,7 +38,7 @@ internal class LaunchPlanner
     }
 
     // Only group-lighting (v3+) environments, i.e. Weave and newer, define light groups.
-    private bool UsesGroupLighting(BeatmapLevel level, BeatmapKey key)
+    public bool UsesGroupLighting(BeatmapLevel level, BeatmapKey key)
     {
         string environmentName = level.GetEnvironmentName(key.beatmapCharacteristic, key.difficulty);
         var environmentInfo = environmentsListModel.GetEnvironmentInfoBySerializedName(environmentName);

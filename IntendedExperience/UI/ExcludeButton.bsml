@@ -1,3 +1,3 @@
 <button xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'
-        text="~button-text" on-click="toggle-exclusion" pref-width="10" pref-height="10" rich-text="true"
+        id="exclude-button" text="~button-text" on-click="toggle-exclusion" pref-width="10" pref-height="10" rich-text="true"
         hover-hint="Intended Experience: toggle whether this map gets its intended settings. Struck out = excluded."/>

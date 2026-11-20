@@ -47,14 +47,8 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     // Re-sampling the button's state animation restores its colors; the postfix then tints them if needed.
     private void Refresh()
     {
-        if (!FindActionButton())
-            return;
-
-        ResampleMethod.Invoke(buttonAnimations, new object[] { actionButton!.selectionState });
-
-        // A disabled hint gets no pointer events, so it only shows while the button is tinted.
-        hoverHint!.enabled = IsTinted;
-        hoverHint.text = $"{HintHeader}\n{launchPreview.Plan.DescribeChanges()}";
+        if (FindActionButton())
+            ResampleMethod.Invoke(buttonAnimations, new object[] { actionButton!.selectionState });
     }
 
     private bool FindActionButton()
@@ -79,7 +73,15 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     [AffinityPostfix]
     private void AnimationSampledPostfix(ButtonStaticAnimations __instance)
     {
-        if (__instance != buttonAnimations || !IsTinted)
+        if (__instance != buttonAnimations || hoverHint == null)
+            return;
+
+        // Also runs when the menu reappears, so settings changed meanwhile apply here.
+        // A disabled hint gets no pointer events, so it only shows while the button is tinted.
+        hoverHint.enabled = IsTinted && config.ShowPlayButtonTooltip;
+        hoverHint.text = $"{HintHeader}\n{launchPreview.Plan.DescribeChanges()}";
+
+        if (!IsTinted)
             return;
 
         foreach (var imageView in __instance.GetComponentsInChildren<ImageView>(true))

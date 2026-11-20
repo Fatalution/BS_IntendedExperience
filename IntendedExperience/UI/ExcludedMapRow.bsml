@@ -1,0 +1,8 @@
+<horizontal xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'
+            pref-height="7" spacing="2" child-control-width="true" child-expand-width="false">
+    <!-- Text has no layout element of its own; this container takes all space left of the button. -->
+    <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
+        <text text="~map-name" font-size="3.5" align="Left" overflow-mode="Ellipsis" word-wrapping="false" rich-text="true"/>
+    </horizontal>
+    <button text="Remove" min-width="18" pref-width="18" pref-height="6" on-click="remove"/>
+</horizontal>
