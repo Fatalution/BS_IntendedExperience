@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
@@ -48,11 +47,7 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
             if (plan.IsEmpty)
                 return "Nothing to change for this map.";
 
-            var changes = new List<string>();
-            if (plan.EnableLights) changes.Add("• Enable lights");
-            if (plan.UseNotesOnlyColors) changes.Add("• Notes Only color override");
-            if (plan.EnableMapEffectColors) changes.Add("• Map effect colors");
-            return "<color=#FF9933>This launch will apply:</color>\n" + string.Join("\n", changes);
+            return "<color=#FF9933>This launch will apply:</color>\n" + plan.DescribeChanges();
         }
     }
 

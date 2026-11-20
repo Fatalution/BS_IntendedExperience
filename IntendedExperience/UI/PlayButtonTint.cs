@@ -7,11 +7,15 @@ using Zenject;
 
 namespace IntendedExperience.UI;
 
-/// <summary>Turns the Play button orange (hue only) when launching will override settings.</summary>
+/// <summary>
+/// Turns the Play button orange (hue only) when launching will override settings,
+/// with a hover hint listing the overrides.
+/// </summary>
 internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
 {
     private const float TintHue = 30f / 360f;
     private const string ResampleMethodName = "HandleButtonSelectionStateDidChange";
+    private const string HintHeader = "Intended Experience will apply for this map:";
 
     private static readonly MethodInfo ResampleMethod =
         typeof(ButtonStaticAnimations).GetMethod(ResampleMethodName, BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -19,16 +23,19 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     private readonly PluginConfig config;
     private readonly LaunchPreview launchPreview;
     private readonly StandardLevelDetailViewController levelDetailViewController;
+    private readonly DiContainer container;
 
     private ButtonStaticAnimations? buttonAnimations;
     private NoTransitionsButton? actionButton;
+    private HoverHint? hoverHint;
 
     public PlayButtonTint(PluginConfig config, LaunchPreview launchPreview,
-        StandardLevelDetailViewController levelDetailViewController)
+        StandardLevelDetailViewController levelDetailViewController, DiContainer container)
     {
         this.config = config;
         this.launchPreview = launchPreview;
         this.levelDetailViewController = levelDetailViewController;
+        this.container = container;
     }
 
     private bool IsTinted => config.TintPlayButton && !launchPreview.Plan.IsEmpty;
@@ -40,21 +47,32 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     // Re-sampling the button's state animation restores its colors; the postfix then tints them if needed.
     private void Refresh()
     {
-        if (FindActionButton())
-            ResampleMethod.Invoke(buttonAnimations, new object[] { actionButton!.selectionState });
+        if (!FindActionButton())
+            return;
+
+        ResampleMethod.Invoke(buttonAnimations, new object[] { actionButton!.selectionState });
+
+        // A disabled hint gets no pointer events, so it only shows while the button is tinted.
+        hoverHint!.enabled = IsTinted;
+        hoverHint.text = $"{HintHeader}\n{launchPreview.Plan.DescribeChanges()}";
     }
 
     private bool FindActionButton()
     {
-        if (buttonAnimations != null)
+        if (hoverHint != null)
             return true;
 
         var levelDetailView = levelDetailViewController.GetComponentInChildren<StandardLevelDetailView>(true);
         actionButton = levelDetailView.actionButton as NoTransitionsButton;
         buttonAnimations = levelDetailView.actionButton.GetComponentInChildren<ButtonStaticAnimations>(true);
         if (buttonAnimations == null || actionButton == null)
+        {
             Plugin.Log.Warn("Play button animations not found; tint disabled.");
-        return buttonAnimations != null && actionButton != null;
+            return false;
+        }
+
+        hoverHint = container.InstantiateComponent<HoverHint>(actionButton.gameObject);
+        return true;
     }
 
     [AffinityPatch(typeof(ButtonStaticAnimations), ResampleMethodName)]
