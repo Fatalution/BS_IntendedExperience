@@ -1,0 +1,7 @@
+<vertical xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'
+          spacing="2" pad="4" vertical-fit="PreferredSize">
+    <toggle-setting text="Exclude this map" value="excluded" apply-on-change="true" bind-value="true"
+                    interactable="~has-level"
+                    hover-hint="Always play this map with your own settings."/>
+    <text text="~status-text" font-size="4" word-wrapping="true" rich-text="true"/>
+</vertical>

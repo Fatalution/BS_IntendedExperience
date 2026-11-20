@@ -20,15 +20,8 @@ internal class Plugin
         zenjector.UseLogger(Log);
 
         var pluginConfig = ipaConfig.Generated<PluginConfig>();
-
-        // App-wide services (MapAnalyzer, PlayerSettingsManager, SettingsApplier)
         zenjector.Install<AppInstaller>(Location.App, pluginConfig);
-
-        // Menu UI (IntendedPlayButton)
         zenjector.Install<MenuInstaller>(Location.Menu);
-
-        // Gameplay hooks (SettingsRestorer)
-        zenjector.Install<GameplayInstaller>(Location.Player);
 
         Log.Info($"{pluginMetadata.Name} {pluginMetadata.HVersion} initialized.");
     }

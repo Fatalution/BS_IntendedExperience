@@ -1,9 +1,0 @@
-<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
-    <horizontal pad="2">
-        <button id="intended-play-button"
-                text="Play (Intended)"
-                on-click="OnIntendedPlayClick"
-                preferred-width="36"
-                preferred-height="8"/>
-    </horizontal>
-</bg>

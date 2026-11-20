@@ -6,12 +6,12 @@
   <PropertyGroup>
     <PluginId>IntendedExperience</PluginId>
     <PluginName>IntendedExperience</PluginName>
-    <Authors></Authors>
+    <Authors>Fatalution</Authors>
     <Version>0.0.1</Version>
     <GameVersion>1.44.1</GameVersion>
-    <Description></Description>
+    <Description>Plays every map with its intended lighting and color settings, for that map only.</Description>
     <!--<PluginIcon></PluginIcon>-->
-    <!--<ProjectSource></ProjectSource>-->
+    <ProjectSource>https://github.com/Fatalution/IntendedExperience</ProjectSource>
     <!--<ProjectHome></ProjectHome>-->
     <!--<DonateUrl></DonateUrl>-->
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DependsOn Include="BSIPA" Version="^4.3.0"/>
     <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.14.1"/>
     <DependsOn Include="SiraUtil" Version="^3.3.1"/>
+    <DependsOn Include="SongCore" Version="^3.16.0"/>
   </ItemGroup>
   
   <PropertyGroup>

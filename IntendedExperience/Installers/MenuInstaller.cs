@@ -7,7 +7,9 @@ internal class MenuInstaller : Installer
 {
     public override void InstallBindings()
     {
-        // IntendedPlayButton handles the UI for playing with intended settings
-        Container.BindInterfacesTo<IntendedPlayButton>().AsSingle();
+        Container.BindInterfacesAndSelfTo<LaunchPreview>().AsSingle();
+        Container.BindInterfacesTo<PlayButtonTint>().AsSingle();
+        Container.BindInterfacesTo<SettingsMenu>().AsSingle();
+        Container.BindInterfacesTo<MapTab>().AsSingle();
     }
 }

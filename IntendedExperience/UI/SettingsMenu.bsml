@@ -1,0 +1,27 @@
+<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
+    <toggle-setting text="Enabled" value="enabled" apply-on-change="true"
+                    hover-hint="Apply a map's intended settings when you launch it. Your saved settings are never changed."/>
+
+    <horizontal pref-height="6">
+        <text text="Rules (v3+ environments: Weave and newer)" font-size="4" color="#AAAAAA" word-wrapping="false"/>
+    </horizontal>
+    <toggle-setting text="Enable lights" value="force-lights" apply-on-change="true"
+                    hover-hint="Turns all environment effects on if you have them reduced or off."/>
+    <toggle-setting text="Notes Only color override" value="force-notes-only" apply-on-change="true"
+                    hover-hint="If your color override is set to All, uses Notes Only so the lights keep their intended colors."/>
+    <toggle-setting text="Map effect colors" value="force-map-effect-colors" apply-on-change="true"
+                    hover-hint="Enables SongCore's custom environment colors when the map provides them. Note and wall colors are untouched."/>
+    <toggle-setting text="Map effect colors on v2 environments" value="legacy-map-effect-colors" apply-on-change="true"
+                    hover-hint="Also apply map effect colors on older (v2) environments."/>
+
+    <horizontal pref-height="6">
+        <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>
+    </horizontal>
+    <toggle-setting text="Tint Play button" value="tint-play-button" apply-on-change="true"
+                    hover-hint="Turns the Play button orange when launching will apply intended settings."/>
+
+    <horizontal pref-height="8">
+        <text text="~exclusions-text" align="Left" word-wrapping="false"/>
+        <button text="Clear" on-click="clear-exclusions" hover-hint="Remove every map from the exclusion list."/>
+    </horizontal>
+</settings-container>

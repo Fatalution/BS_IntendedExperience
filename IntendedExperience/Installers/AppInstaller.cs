@@ -1,5 +1,6 @@
-using IntendedExperience.Detection;
-using IntendedExperience.Settings;
+using IntendedExperience.Compat;
+using IntendedExperience.Core;
+using IntendedExperience.Patches;
 using Zenject;
 
 namespace IntendedExperience.Installers;
@@ -16,10 +17,9 @@ internal class AppInstaller : Installer
     public override void InstallBindings()
     {
         Container.BindInstance(pluginConfig).AsSingle();
-
-        // Core services - available app-wide
-        Container.Bind<MapAnalyzer>().AsSingle();
-        Container.Bind<PlayerSettingsManager>().AsSingle();
-        Container.Bind<SettingsApplier>().AsSingle();
+        Container.Bind<SongCoreColors>().AsSingle();
+        Container.Bind<MapExclusions>().AsSingle();
+        Container.Bind<LaunchPlanner>().AsSingle();
+        Container.BindInterfacesTo<LevelStartPatch>().AsSingle();
     }
 }

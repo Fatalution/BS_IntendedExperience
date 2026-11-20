@@ -10,7 +10,7 @@
         <EnableFrameworkPathOverride>true</EnableFrameworkPathOverride>
         <FrameworkPathOverride>$(BeatSaberDir)\Beat Saber_Data\Managed</FrameworkPathOverride>
         <MarkPackageReferencesAsExternallyResolved>false</MarkPackageReferencesAsExternallyResolved>
-        <Description>Automatically applies optimal player settings based on map version and environment</Description>
+        <Description>Applies a map's intended lighting and color settings for that map only.</Description>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="UI\IntendedPlayButton.bsml"/>
+        <EmbeddedResource Include="UI\SettingsMenu.bsml"/>
+        <EmbeddedResource Include="UI\MapTab.bsml"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -29,6 +30,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Reference Include="BeatmapCore">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="BeatSaber.ViewSystem">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
             <Private>false</Private>
@@ -41,16 +46,16 @@
             <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="Colors">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
         <Reference Include="DataModels">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\DataModels.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="Hive.Versioning">
             <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="HMRendering">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="HMUI">
@@ -71,13 +76,13 @@
             <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="SongCore">
+            <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.Core.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-        <Reference Include="Unity.TextMeshPro">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine">
@@ -90,14 +95,6 @@
         </Reference>
         <Reference Include="UnityEngine.UI">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.UIElementsModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.UIModule">
-            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="Zenject">
