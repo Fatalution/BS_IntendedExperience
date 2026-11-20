@@ -11,14 +11,16 @@ internal class LaunchPreview : ITickable
     private readonly PlayerDataModel playerDataModel;
     private readonly LaunchPlanner launchPlanner;
     private readonly MapExclusions mapExclusions;
+    private readonly PluginConfig config;
 
     public LaunchPreview(StandardLevelDetailViewController levelDetailViewController, PlayerDataModel playerDataModel,
-        LaunchPlanner launchPlanner, MapExclusions mapExclusions)
+        LaunchPlanner launchPlanner, MapExclusions mapExclusions, PluginConfig config)
     {
         this.levelDetailViewController = levelDetailViewController;
         this.playerDataModel = playerDataModel;
         this.launchPlanner = launchPlanner;
         this.mapExclusions = mapExclusions;
+        this.config = config;
     }
 
     public event Action? Changed;
@@ -29,6 +31,8 @@ internal class LaunchPreview : ITickable
 
     /// <summary>The selected map uses a v3+ environment, so the mod can affect it.</summary>
     public bool Qualifies { get; private set; }
+
+    public bool ShowTooltips { get; private set; }
 
     // Polled so changes made anywhere (gameplay setup, mod settings, exclusions) show up immediately.
     public void Tick()
@@ -41,13 +45,16 @@ internal class LaunchPreview : ITickable
         var plan = level == null ? default : PlanFor(level, key);
         bool excluded = level != null && mapExclusions.IsExcluded(level.levelID);
         bool qualifies = level != null && launchPlanner.UsesGroupLighting(level, key);
-        if (level == Level && plan == Plan && excluded == Excluded && qualifies == Qualifies)
+        bool showTooltips = config.ShowTooltips;
+        if (level == Level && plan == Plan && excluded == Excluded && qualifies == Qualifies
+            && showTooltips == ShowTooltips)
             return;
 
         Level = level;
         Plan = plan;
         Excluded = excluded;
         Qualifies = qualifies;
+        ShowTooltips = showTooltips;
         Changed?.Invoke();
     }
 

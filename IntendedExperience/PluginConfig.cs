@@ -19,7 +19,7 @@ internal class PluginConfig
 
     // ---- Menu ----
     public virtual bool TintPlayButton { get; set; } = true;
-    public virtual bool ShowPlayButtonTooltip { get; set; } = true;
+    public virtual bool ShowTooltips { get; set; } = true;
 
     // ---- Exclusions ----
     [NonNullable, UseConverter(typeof(ListConverter<string>))]

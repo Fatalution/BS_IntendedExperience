@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using UnityEngine;
 using Zenject;
 
@@ -52,7 +53,12 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     private void Refresh()
     {
         if (excludeButton != null)
+        {
             excludeButton.SetActive(launchPreview.Qualifies);
+            var hoverHint = excludeButton.GetComponent<HoverHint>();
+            if (hoverHint != null)
+                hoverHint.enabled = launchPreview.ShowTooltips;
+        }
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonText)));
     }
 }

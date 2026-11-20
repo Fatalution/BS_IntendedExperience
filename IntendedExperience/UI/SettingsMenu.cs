@@ -56,8 +56,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("tint-play-button")]
     public bool TintPlayButton { get => config.TintPlayButton; set => config.TintPlayButton = value; }
 
-    [UIValue("show-play-button-tooltip")]
-    public bool ShowPlayButtonTooltip { get => config.ShowPlayButtonTooltip; set => config.ShowPlayButtonTooltip = value; }
+    [UIValue("show-tooltips")]
+    public bool ShowTooltips { get => config.ShowTooltips; set => config.ShowTooltips = value; }
 
     // ---- Exclusions ----
     [UIValue("exclusions-text")]

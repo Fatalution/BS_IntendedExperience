@@ -78,7 +78,7 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
 
         // Also runs when the menu reappears, so settings changed meanwhile apply here.
         // A disabled hint gets no pointer events, so it only shows while the button is tinted.
-        hoverHint.enabled = IsTinted && config.ShowPlayButtonTooltip;
+        hoverHint.enabled = IsTinted && launchPreview.ShowTooltips;
         hoverHint.text = $"{HintHeader}\n{launchPreview.Plan.DescribeChanges()}";
 
         if (!IsTinted)

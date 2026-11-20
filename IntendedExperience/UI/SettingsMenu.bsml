@@ -15,8 +15,8 @@
     </horizontal>
     <toggle-setting text="Tint Play button" value="tint-play-button" apply-on-change="true"
                     hover-hint="Turns the Play button orange when launching will apply intended settings."/>
-    <toggle-setting text="Play button tooltip" value="show-play-button-tooltip" apply-on-change="true"
-                    hover-hint="When the Play button is orange, hovering it lists the settings that will be applied."/>
+    <toggle-setting text="Show tooltips" value="show-tooltips" apply-on-change="true"
+                    hover-hint="Hover hints on the Play and IE buttons."/>
 
     <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">
         <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
