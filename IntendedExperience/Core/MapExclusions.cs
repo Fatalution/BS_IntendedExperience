@@ -1,3 +1,5 @@
+using System;
+
 namespace IntendedExperience.Core;
 
 /// <summary>Maps the player chose to always play with their own settings.</summary>
@@ -9,6 +11,8 @@ internal class MapExclusions
     {
         this.config = config;
     }
+
+    public event Action? Changed;
 
     public int Count => config.ExcludedLevelIds.Count;
 
@@ -23,12 +27,18 @@ internal class MapExclusions
             config.ExcludedLevelIds.Add(levelId);
         else
             config.ExcludedLevelIds.Remove(levelId);
-        config.Changed();
+        Save();
     }
 
     public void Clear()
     {
         config.ExcludedLevelIds.Clear();
+        Save();
+    }
+
+    private void Save()
+    {
         config.Changed();
+        Changed?.Invoke();
     }
 }

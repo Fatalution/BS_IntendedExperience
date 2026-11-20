@@ -53,20 +53,24 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("exclusions-text")]
     public string ExclusionsText => $"Excluded maps: {mapExclusions.Count}";
 
-    public void Initialize() => bsmlSettings.AddSettingsMenu(MenuName, ResourcePath, this);
-
-    public void Dispose() => bsmlSettings.RemoveSettingsMenu(this);
-
-    [UIAction("#post-parse")]
-    private void PostParse() => NotifyChanged(nameof(ExclusionsText));
-
-    [UIAction("clear-exclusions")]
-    private void ClearExclusions()
+    public void Initialize()
     {
-        mapExclusions.Clear();
-        NotifyChanged(nameof(ExclusionsText));
+        bsmlSettings.AddSettingsMenu(MenuName, ResourcePath, this);
+        mapExclusions.Changed += NotifyExclusionsChanged;
     }
 
-    private void NotifyChanged(string propertyName) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    public void Dispose()
+    {
+        mapExclusions.Changed -= NotifyExclusionsChanged;
+        bsmlSettings.RemoveSettingsMenu(this);
+    }
+
+    [UIAction("#post-parse")]
+    private void PostParse() => NotifyExclusionsChanged();
+
+    [UIAction("clear-exclusions")]
+    private void ClearExclusions() => mapExclusions.Clear();
+
+    private void NotifyExclusionsChanged() =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExclusionsText)));
 }
