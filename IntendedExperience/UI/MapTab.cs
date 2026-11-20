@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
-using IntendedExperience.Core;
 using Zenject;
 
 namespace IntendedExperience.UI;
@@ -11,18 +10,16 @@ namespace IntendedExperience.UI;
 /// <summary>Gameplay setup tab: shows what the selected map's launch changes and lets the player exclude it.</summary>
 internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 {
-    private const string TabName = "Intended Exp.";
+    private const string TabName = "Intended Experience";
     private const string ResourcePath = "IntendedExperience.UI.MapTab.bsml";
 
     private readonly GameplaySetup gameplaySetup;
     private readonly LaunchPreview launchPreview;
-    private readonly MapExclusions mapExclusions;
 
-    public MapTab(GameplaySetup gameplaySetup, LaunchPreview launchPreview, MapExclusions mapExclusions)
+    public MapTab(GameplaySetup gameplaySetup, LaunchPreview launchPreview)
     {
         this.gameplaySetup = gameplaySetup;
         this.launchPreview = launchPreview;
-        this.mapExclusions = mapExclusions;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -33,12 +30,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
     [UIValue("excluded")]
     public bool Excluded
     {
-        get => launchPreview.Level != null && mapExclusions.IsExcluded(launchPreview.Level.levelID);
-        set
-        {
-            if (launchPreview.Level != null)
-                mapExclusions.SetExcluded(launchPreview.Level.levelID, value);
-        }
+        get => launchPreview.Excluded;
+        set => launchPreview.SetExcluded(value);
     }
 
     [UIValue("status-text")]
