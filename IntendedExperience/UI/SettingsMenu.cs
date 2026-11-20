@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Settings;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using SongCore;
 using UnityEngine;
 using Zenject;
@@ -89,6 +90,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         bsmlSettings.RemoveSettingsMenu(this);
     }
 
+    [UsedImplicitly]
     [UIAction("#post-parse")]
     private void PostParse()
     {
@@ -103,6 +105,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
             settingsBody.SetActive(config.Enabled);
     }
 
+    [UsedImplicitly]
     [UIAction("clear-exclusions")]
     private void ClearExclusions() => mapExclusions.Clear();
 
@@ -161,6 +164,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         [UIValue("map-name")]
         public string MapName { get; }
 
+        [UsedImplicitly]
         [UIAction("remove")]
         private void Remove() => mapExclusions.SetExcluded(levelId, false);
     }

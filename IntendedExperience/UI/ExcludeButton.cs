@@ -3,6 +3,7 @@ using System.ComponentModel;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
@@ -46,6 +47,7 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
 
     public void Dispose() => launchPreview.Changed -= Refresh;
 
+    [UsedImplicitly]
     [UIAction("toggle-exclusion")]
     private void ToggleExclusion() => launchPreview.SetExcluded(!launchPreview.Excluded);
 

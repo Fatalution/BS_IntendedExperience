@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using HMUI;
+using JetBrains.Annotations;
 using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
@@ -70,6 +71,7 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     }
 
     [AffinityPatch(typeof(ButtonStaticAnimations), ResampleMethodName)]
+    [UsedImplicitly]
     [AffinityPostfix]
     private void AnimationSampledPostfix(ButtonStaticAnimations __instance)
     {

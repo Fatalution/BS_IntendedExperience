@@ -1,5 +1,6 @@
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using SiraUtil.Affinity;
 
 namespace IntendedExperience.Patches;
@@ -22,6 +23,7 @@ internal class LevelStartPatch : IAffinity
     }
 
     [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
+    [UsedImplicitly]
     [AffinityPrefix]
     private void Prefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
         ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings)
@@ -51,6 +53,7 @@ internal class LevelStartPatch : IAffinity
     }
 
     [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
+    [UsedImplicitly]
     [AffinityFinalizer]
     private void Finalizer()
     {
