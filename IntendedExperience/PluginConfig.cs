@@ -14,10 +14,8 @@ internal class PluginConfig
     public virtual bool Enabled { get; set; } = true;
 
     // ---- Rules ----
-    public virtual bool ForceLights { get; set; } = true;
-    public virtual bool ForceNotesOnlyColors { get; set; } = true;
-    public virtual bool ForceMapEffectColors { get; set; } = true;
-    public virtual bool MapEffectColorsOnLegacyEnvironments { get; set; } = false;
+    public virtual bool ForceAllEffects { get; set; } = true;
+    public virtual bool ForceIntendedColors { get; set; } = true;
 
     // ---- Menu ----
     public virtual bool TintPlayButton { get; set; } = true;

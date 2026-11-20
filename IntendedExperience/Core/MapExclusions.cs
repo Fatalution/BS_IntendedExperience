@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace IntendedExperience.Core;
 
@@ -14,7 +15,7 @@ internal class MapExclusions
 
     public event Action? Changed;
 
-    public int Count => config.ExcludedLevelIds.Count;
+    public IReadOnlyList<string> LevelIds => config.ExcludedLevelIds;
 
     public bool IsExcluded(string levelId) => config.ExcludedLevelIds.Contains(levelId);
 

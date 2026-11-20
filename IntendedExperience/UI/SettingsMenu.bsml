@@ -3,16 +3,12 @@
                     hover-hint="Apply a map's intended settings when you launch it. Your saved settings are never changed."/>
 
     <horizontal pref-height="6">
-        <text text="Rules (v3+ environments: Weave and newer)" font-size="4" color="#AAAAAA" word-wrapping="false"/>
+        <text text="Rules" font-size="4" color="#AAAAAA" word-wrapping="false"/>
     </horizontal>
-    <toggle-setting text="Enable lights" value="force-lights" apply-on-change="true"
+    <toggle-setting text="Enable All Effects" value="force-all-effects" apply-on-change="true"
                     hover-hint="Turns all environment effects on if you have them reduced or off."/>
-    <toggle-setting text="Notes Only color override" value="force-notes-only" apply-on-change="true"
-                    hover-hint="If your color override is set to All, uses Notes Only so the lights keep their intended colors."/>
-    <toggle-setting text="Map effect colors" value="force-map-effect-colors" apply-on-change="true"
-                    hover-hint="Enables SongCore's custom environment colors when the map provides them. Note and wall colors are untouched."/>
-    <toggle-setting text="Map effect colors on v2 environments" value="legacy-map-effect-colors" apply-on-change="true"
-                    hover-hint="Also apply map effect colors on older (v2) environments."/>
+    <toggle-setting text="Use Intended Colors" value="force-intended-colors" apply-on-change="true"
+                    hover-hint="Lights use the map's colors: an All color override becomes Notes Only, and the map's own effect colors are enabled. Note and wall colors are untouched."/>
 
     <horizontal pref-height="6">
         <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>
@@ -21,7 +17,14 @@
                     hover-hint="Turns the Play button orange when launching will apply intended settings."/>
 
     <horizontal pref-height="8">
-        <text text="~exclusions-text" align="Left" word-wrapping="false"/>
-        <button text="Clear" on-click="clear-exclusions" hover-hint="Remove every map from the exclusion list."/>
+        <text text="~exclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>
+        <button text="Clear all" on-click="clear-exclusions" hover-hint="Remove every map from the exclusion list."/>
     </horizontal>
+    <custom-list id="excluded-list" contents="~excluded-maps" visible-cells="5" cell-size="7" list-width="90"
+                 show-scrollbar="true" clickable-cells="false">
+        <horizontal pref-width="90" pref-height="7" child-expand-width="false">
+            <text text="~map-name" font-size="3.5" pref-width="74" overflow-mode="Ellipsis" word-wrapping="false" rich-text="true"/>
+            <button text="Remove" pref-width="16" pref-height="6" on-click="remove"/>
+        </horizontal>
+    </custom-list>
 </settings-container>

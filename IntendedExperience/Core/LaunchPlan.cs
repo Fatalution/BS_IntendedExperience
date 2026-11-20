@@ -3,17 +3,16 @@ using System.Collections.Generic;
 namespace IntendedExperience.Core;
 
 /// <summary>The setting overrides one level launch will apply.</summary>
-internal record struct LaunchPlan(bool EnableLights, bool UseNotesOnlyColors, bool EnableMapEffectColors)
+internal record struct LaunchPlan(bool EnableAllEffects, bool UseNotesOnlyColors, bool EnableMapEffectColors)
 {
-    public bool IsEmpty => !EnableLights && !UseNotesOnlyColors && !EnableMapEffectColors;
+    public bool IsEmpty => !EnableAllEffects && !UseNotesOnlyColors && !EnableMapEffectColors;
 
-    /// <summary>One bullet line per override, for menus and hints.</summary>
+    /// <summary>One bullet line per setting, matching the names in Mod Settings.</summary>
     public string DescribeChanges()
     {
         var changes = new List<string>();
-        if (EnableLights) changes.Add("• Enable lights");
-        if (UseNotesOnlyColors) changes.Add("• Notes Only color override");
-        if (EnableMapEffectColors) changes.Add("• Map effect colors");
+        if (EnableAllEffects) changes.Add("• Enable All Effects");
+        if (UseNotesOnlyColors || EnableMapEffectColors) changes.Add("• Use Intended Colors");
         return string.Join("\n", changes);
     }
 }

@@ -8,13 +8,11 @@ Targets **Beat Saber 1.44.1**.
 
 The rules apply to maps made for v3+ (group lighting) environments, meaning **Weave and newer**:
 
-| Rule | When | What happens for that map |
+| Setting | When | What happens for that map |
 |---|---|---|
-| **Enable lights** | Your environment effects are reduced or off | All effects are turned on |
-| **Notes Only color override** | Your colors override is set to **All** | **Notes Only** is used, so the lights keep the map's colors |
-| **Map effect colors** | The map has its own environment colors and SongCore's environment colors are off | SongCore's environment colors are turned on. Note and wall colors are untouched |
-
-The map effect colors rule can also apply to v2 environments if you turn that on in the settings.
+| **Enable All Effects** | Your environment effects are reduced or off | All effects are turned on |
+| **Use Intended Colors** | Your colors override is set to **All** | **Notes Only** is used, so the lights keep the map's colors |
+| | The map has its own environment colors and SongCore's environment colors are off | SongCore's environment colors are turned on. Note and wall colors are untouched |
 
 ### How it stays temporary
 
@@ -22,7 +20,7 @@ The mod changes the settings the game receives when the level starts, not the se
 
 ## In game
 
-- **Settings → Mod Settings → Intended Experience**: a master switch, a toggle for each rule, the Play button tint, and the excluded-maps list.
+- **Settings → Mod Settings → Intended Experience**: a master switch, the two settings above, the Play button tint, and the list of excluded maps, each with a Remove button.
 - **Excluding a map**: mark a map so it always plays with your own settings, for example a ranked map you know by heart or one with a color scheme you dislike. You can do it in two places:
   - the **IE** button next to Play (struck out = excluded)
   - **Gameplay Setup → Mods → Intended Experience**, which also lists what the launch will change

@@ -30,7 +30,7 @@ internal class LevelStartPatch : IAffinity
         if (plan.IsEmpty)
             return;
 
-        if (plan.EnableLights)
+        if (plan.EnableAllEffects)
         {
             playerSpecificSettings = playerSpecificSettings.CopyWith(
                 environmentEffectsFilterDefaultPreset: EnvironmentEffectsFilterPreset.AllEffects,

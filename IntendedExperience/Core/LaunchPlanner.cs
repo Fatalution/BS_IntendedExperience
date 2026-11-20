@@ -23,18 +23,16 @@ internal class LaunchPlanner
     public LaunchPlan Plan(BeatmapLevel level, BeatmapKey key, PlayerSpecificSettings playerSettings,
         bool overrideLightshowColors)
     {
-        if (!config.Enabled || mapExclusions.IsExcluded(level.levelID))
+        if (!config.Enabled || mapExclusions.IsExcluded(level.levelID) || !UsesGroupLighting(level, key))
             return default;
 
-        bool groupLighting = UsesGroupLighting(level, key);
-        bool lightsReduced = playerSettings.GetEnvironmentEffectsFilterPreset(key.difficulty)
-                             != EnvironmentEffectsFilterPreset.AllEffects;
+        bool effectsReduced = playerSettings.GetEnvironmentEffectsFilterPreset(key.difficulty)
+                              != EnvironmentEffectsFilterPreset.AllEffects;
 
         return new LaunchPlan(
-            EnableLights: config.ForceLights && groupLighting && lightsReduced,
-            UseNotesOnlyColors: config.ForceNotesOnlyColors && groupLighting && overrideLightshowColors,
-            EnableMapEffectColors: config.ForceMapEffectColors
-                                   && (groupLighting || config.MapEffectColorsOnLegacyEnvironments)
+            EnableAllEffects: config.ForceAllEffects && effectsReduced,
+            UseNotesOnlyColors: config.ForceIntendedColors && overrideLightshowColors,
+            EnableMapEffectColors: config.ForceIntendedColors
                                    && !songCoreColors.EnvironmentColorsEnabled
                                    && SongCoreColors.HasEffectColors(key));
     }
