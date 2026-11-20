@@ -1,30 +1,38 @@
 <settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
     <toggle-setting text="Enabled" value="enabled" apply-on-change="true"
-                    hover-hint="Apply a map's intended settings when you launch it. Your saved settings are never changed."/>
+                    hover-hint="Apply the settings v3+ (GLS) maps need to look as the mapper made them, for that map only. Your saved settings are never changed."/>
 
-    <horizontal pref-height="6">
-        <text text="Rules" font-size="4" color="#AAAAAA" word-wrapping="false"/>
-    </horizontal>
-    <toggle-setting text="Enable All Effects" value="force-all-effects" apply-on-change="true"
-                    hover-hint="Turns all environment effects on if you have them reduced or off."/>
-    <toggle-setting text="Use Intended Colors" value="force-intended-colors" apply-on-change="true"
-                    hover-hint="Lights use the map's colors: an All color override becomes Notes Only, and the map's own effect colors are enabled. Note and wall colors are untouched."/>
-
-    <horizontal pref-height="6">
-        <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>
-    </horizontal>
-    <toggle-setting text="Tint Play button" value="tint-play-button" apply-on-change="true"
-                    hover-hint="Turns the Play button orange when launching will apply intended settings."/>
-    <toggle-setting text="Show tooltips" value="show-tooltips" apply-on-change="true"
-                    hover-hint="Hover hints on the Play and IE buttons."/>
-
-    <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">
-        <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
-            <text text="~exclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>
+    <!-- Hidden while the mod is disabled. -->
+    <vertical id="settings-body" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
+              child-control-width="true" child-expand-width="true">
+        <horizontal pref-height="6">
+            <text text="Rules" font-size="4" color="#AAAAAA" word-wrapping="false"/>
         </horizontal>
-        <button text="Clear all" min-width="18" pref-width="18" pref-height="6" on-click="clear-exclusions"
-                hover-hint="Remove every map from the exclusion list."/>
+        <toggle-setting text="Enable All Effects" value="force-all-effects" apply-on-change="true"
+                        hover-hint="Plays the map with All Effects if your environment effects are set to Off or No Flickering."/>
+        <toggle-setting text="Use Intended Colors" value="force-intended-colors" apply-on-change="true"
+                        hover-hint="If your colors override is set to All, plays the map with Notes Only so the lights keep the map's colors, and turns on the map's own environment colors through SongCore if it has any. Note and wall colors stay yours."/>
+
+        <horizontal pref-height="6">
+            <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>
+        </horizontal>
+        <toggle-setting text="Tint Play button" value="tint-play-button" apply-on-change="true"
+                        hover-hint="Turns the Play button orange when Intended Experience will change settings for the selected map."/>
+        <toggle-setting text="Show tooltips" value="show-tooltips" apply-on-change="true"
+                        hover-hint="Shows hover hints on the Play and IE buttons."/>
+
+        <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">
+            <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
+                <text text="~exclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>
+            </horizontal>
+            <button text="Clear all" min-width="18" pref-width="18" pref-height="6" on-click="clear-exclusions"
+                    hover-hint="Remove every map from the exclusion list."/>
+        </horizontal>
+        <vertical id="excluded-rows" spacing="1" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
+                  child-control-width="true" child-expand-width="true"/>
+    </vertical>
+
+    <horizontal pref-height="8">
+        <text text="Made with &lt;3 by Fatalution" font-size="3.5" color="#808080" align="Center" word-wrapping="false"/>
     </horizontal>
-    <vertical id="excluded-rows" spacing="1" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
-              child-control-width="true" child-expand-width="true"/>
 </settings-container>

@@ -26,11 +26,11 @@ internal class LaunchPlanner
         if (!config.Enabled || mapExclusions.IsExcluded(level.levelID) || !UsesGroupLighting(level, key))
             return default;
 
-        bool effectsReduced = playerSettings.GetEnvironmentEffectsFilterPreset(key.difficulty)
-                              != EnvironmentEffectsFilterPreset.AllEffects;
+        bool allEffectsOn = playerSettings.GetEnvironmentEffectsFilterPreset(key.difficulty)
+                           == EnvironmentEffectsFilterPreset.AllEffects;
 
         return new LaunchPlan(
-            EnableAllEffects: config.ForceAllEffects && effectsReduced,
+            EnableAllEffects: config.ForceAllEffects && !allEffectsOn,
             UseNotesOnlyColors: config.ForceIntendedColors && overrideLightshowColors,
             EnableMapEffectColors: config.ForceIntendedColors
                                    && !songCoreColors.EnvironmentColorsEnabled

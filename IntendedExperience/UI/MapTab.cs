@@ -41,7 +41,7 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
             if (launchPreview.Level == null)
                 return "No map selected.";
             if (!Qualifies)
-                return "Not a v3+ environment: your own settings will be used.";
+                return "Not a v3+ (GLS) map: your own settings will be used.";
             if (Excluded)
                 return "Excluded: your own settings will be used.";
 

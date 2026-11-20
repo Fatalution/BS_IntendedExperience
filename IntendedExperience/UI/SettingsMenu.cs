@@ -27,6 +27,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly MapExclusions mapExclusions;
     private readonly string rowTemplate;
 
+    [UIObject("settings-body")]
+    private readonly GameObject settingsBody = null!;
     [UIObject("excluded-rows")]
     private readonly GameObject excludedRows = null!;
 
@@ -45,7 +47,15 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     // ---- Settings ----
     [UIValue("enabled")]
-    public bool Enabled { get => config.Enabled; set => config.Enabled = value; }
+    public bool Enabled
+    {
+        get => config.Enabled;
+        set
+        {
+            config.Enabled = value;
+            UpdateBodyVisibility();
+        }
+    }
 
     [UIValue("force-all-effects")]
     public bool ForceAllEffects { get => config.ForceAllEffects; set => config.ForceAllEffects = value; }
@@ -80,7 +90,18 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     }
 
     [UIAction("#post-parse")]
-    private void PostParse() => OnExclusionsChanged();
+    private void PostParse()
+    {
+        UpdateBodyVisibility();
+        OnExclusionsChanged();
+    }
+
+    // Everything below the master switch is hidden while the mod is disabled.
+    private void UpdateBodyVisibility()
+    {
+        if (settingsBody != null)
+            settingsBody.SetActive(config.Enabled);
+    }
 
     [UIAction("clear-exclusions")]
     private void ClearExclusions() => mapExclusions.Clear();

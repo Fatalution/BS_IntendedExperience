@@ -7,9 +7,9 @@
     <PluginId>IntendedExperience</PluginId>
     <PluginName>IntendedExperience</PluginName>
     <Authors>Fatalution</Authors>
-    <Version>0.0.1</Version>
+    <Version>0.1.0</Version>
     <GameVersion>1.44.1</GameVersion>
-    <Description>Plays every map with its intended lighting and color settings, for that map only.</Description>
+    <Description>Shows v3+ (GLS) lightshows as the mapper made them by applying the right effects and color settings for that map only.</Description>
     <!--<PluginIcon></PluginIcon>-->
     <ProjectSource>https://github.com/Fatalution/IntendedExperience</ProjectSource>
     <!--<ProjectHome></ProjectHome>-->

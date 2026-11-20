@@ -1,7 +1,16 @@
+# Build output
 bin/
 obj/
+
+# IDEs
 .idea/
 .vs/
+.vscode/
+*.DotSettings.user
+
+# Local machine settings (Beat Saber path)
 *.user
 *.csproj.user
+
+# Claude Code local settings
 .claude/settings.local.json

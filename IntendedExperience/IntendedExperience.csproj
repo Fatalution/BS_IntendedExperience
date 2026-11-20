@@ -10,7 +10,6 @@
         <EnableFrameworkPathOverride>true</EnableFrameworkPathOverride>
         <FrameworkPathOverride>$(BeatSaberDir)\Beat Saber_Data\Managed</FrameworkPathOverride>
         <MarkPackageReferencesAsExternallyResolved>false</MarkPackageReferencesAsExternallyResolved>
-        <Description>Applies a map's intended lighting and color settings for that map only.</Description>
     </PropertyGroup>
 
     <ItemGroup>
