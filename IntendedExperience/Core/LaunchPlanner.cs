@@ -1,5 +1,6 @@
 using System.Linq;
 using IntendedExperience.Compat;
+using UnityEngine;
 
 namespace IntendedExperience.Core;
 
@@ -9,14 +10,16 @@ internal class LaunchPlanner
     private readonly PluginConfig config;
     private readonly MapExclusions mapExclusions;
     private readonly SongCoreColors songCoreColors;
+    private readonly BeatSaberPlusLights beatSaberPlusLights;
     private readonly EnvironmentsListModel environmentsListModel;
 
     public LaunchPlanner(PluginConfig config, MapExclusions mapExclusions, SongCoreColors songCoreColors,
-        EnvironmentsListModel environmentsListModel)
+        BeatSaberPlusLights beatSaberPlusLights, EnvironmentsListModel environmentsListModel)
     {
         this.config = config;
         this.mapExclusions = mapExclusions;
         this.songCoreColors = songCoreColors;
+        this.beatSaberPlusLights = beatSaberPlusLights;
         this.environmentsListModel = environmentsListModel;
     }
 
@@ -34,7 +37,9 @@ internal class LaunchPlanner
             UseNotesOnlyColors: config.ForceIntendedColors && overrideLightshowColors,
             EnableMapEffectColors: config.ForceIntendedColors
                                    && !songCoreColors.EnvironmentColorsEnabled
-                                   && SongCoreColors.HasEffectColors(key));
+                                   && SongCoreColors.HasEffectColors(key),
+            SetFullBrightness: config.ForceFullBrightness
+                               && !Mathf.Approximately(beatSaberPlusLights.EffectiveBrightness, 1f));
     }
 
     // Only group-lighting (v3+) environments, i.e. Weave and newer, define light groups.

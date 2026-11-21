@@ -18,6 +18,7 @@ internal class AppInstaller : Installer
     {
         Container.BindInstance(pluginConfig).AsSingle();
         Container.Bind<SongCoreColors>().AsSingle();
+        Container.BindInterfacesAndSelfTo<BeatSaberPlusLights>().AsSingle();
         Container.Bind<MapExclusions>().AsSingle();
         Container.Bind<LaunchPlanner>().AsSingle();
         Container.BindInterfacesTo<LevelStartPatch>().AsSingle();

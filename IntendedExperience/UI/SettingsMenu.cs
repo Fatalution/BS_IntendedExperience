@@ -5,6 +5,7 @@ using System.Linq;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Settings;
+using IntendedExperience.Compat;
 using IntendedExperience.Core;
 using JetBrains.Annotations;
 using SongCore;
@@ -26,6 +27,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly BeatmapLevelsModel beatmapLevelsModel;
     private readonly PluginConfig config;
     private readonly MapExclusions mapExclusions;
+    private readonly BeatSaberPlusLights beatSaberPlusLights;
     private readonly string rowTemplate;
 
     [UIObject("settings-body")]
@@ -34,13 +36,14 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly GameObject excludedRows = null!;
 
     public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
-        PluginConfig config, MapExclusions mapExclusions)
+        PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights)
     {
         this.bsmlSettings = bsmlSettings;
         this.bsmlParser = bsmlParser;
         this.beatmapLevelsModel = beatmapLevelsModel;
         this.config = config;
         this.mapExclusions = mapExclusions;
+        this.beatSaberPlusLights = beatSaberPlusLights;
         rowTemplate = Utilities.GetResourceContent(typeof(SettingsMenu).Assembly, RowResourcePath);
     }
 
@@ -63,6 +66,12 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     [UIValue("force-intended-colors")]
     public bool ForceIntendedColors { get => config.ForceIntendedColors; set => config.ForceIntendedColors = value; }
+
+    [UIValue("force-full-brightness")]
+    public bool ForceFullBrightness { get => config.ForceFullBrightness; set => config.ForceFullBrightness = value; }
+
+    [UIValue("beat-saber-plus-available")]
+    public bool BeatSaberPlusAvailable => beatSaberPlusLights.IsAvailable;
 
     [UIValue("tint-play-button")]
     public bool TintPlayButton { get => config.TintPlayButton; set => config.TintPlayButton = value; }

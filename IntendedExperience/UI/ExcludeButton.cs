@@ -15,6 +15,8 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     private const string ResourcePath = "IntendedExperience.UI.ExcludeButton.bsml";
     private const string ActiveText = "<color=#FF9933>IE</color>";
     private const string ExcludedText = "<color=#808080><s>IE</s></color>";
+    private const string ActiveHint = "Click to disable IE for this map. This will be saved";
+    private const string ExcludedHint = "Click to enable IE for this map. This will be saved";
 
     private readonly BSMLParser bsmlParser;
     private readonly LaunchPreview launchPreview;
@@ -59,7 +61,10 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
             excludeButton.SetActive(launchPreview.Qualifies);
             var hoverHint = excludeButton.GetComponent<HoverHint>();
             if (hoverHint != null)
+            {
                 hoverHint.enabled = launchPreview.ShowTooltips;
+                hoverHint.text = launchPreview.Excluded ? ExcludedHint : ActiveHint;
+            }
         }
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonText)));
     }

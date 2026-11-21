@@ -12,6 +12,9 @@
                         hover-hint="Plays the map with All Effects if your environment effects are set to Off or No Flickering."/>
         <toggle-setting text="Use Intended Colors" value="force-intended-colors" apply-on-change="true"
                         hover-hint="If your colors override is set to All, plays the map with Notes Only so the lights keep the map's colors, and turns on the map's own environment colors through SongCore if it has any. Note and wall colors stay yours."/>
+        <toggle-setting text="Set Effects Brightness to 100%" value="force-full-brightness" apply-on-change="true"
+                        interactable="~beat-saber-plus-available"
+                        hover-hint="If BeatSaberPlus GameTweaker overrides your light brightness, plays the map at 100%. Your BeatSaberPlus setting isn't changed. Requires BeatSaberPlus GameTweaker."/>
 
         <horizontal pref-height="6">
             <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>

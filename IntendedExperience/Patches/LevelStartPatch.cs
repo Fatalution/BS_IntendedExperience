@@ -11,24 +11,34 @@ namespace IntendedExperience.Patches;
 /// </summary>
 internal class LevelStartPatch : IAffinity
 {
+    // Private in the game, so it can't be referenced with nameof.
+    private const string LevelFinishedMethodName = "HandleMainGameSceneDidFinish";
+
     private readonly LaunchPlanner launchPlanner;
     private readonly SongCoreColors songCoreColors;
+    private readonly BeatSaberPlusLights beatSaberPlusLights;
 
     private bool restoreEnvironmentColors;
 
-    public LevelStartPatch(LaunchPlanner launchPlanner, SongCoreColors songCoreColors)
+    public LevelStartPatch(LaunchPlanner launchPlanner, SongCoreColors songCoreColors,
+        BeatSaberPlusLights beatSaberPlusLights)
     {
         this.launchPlanner = launchPlanner;
         this.songCoreColors = songCoreColors;
+        this.beatSaberPlusLights = beatSaberPlusLights;
     }
 
-    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
     [UsedImplicitly]
+    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
     [AffinityPrefix]
     private void Prefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
         ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings)
     {
         var plan = launchPlanner.Plan(beatmapLevel, beatmapKey, playerSpecificSettings, playerOverrideLightshowColors);
+
+        // Set on every launch so a previous map's state never carries over.
+        beatSaberPlusLights.SetForceFullBrightness(plan.SetFullBrightness);
+
         if (plan.IsEmpty)
             return;
 
@@ -52,8 +62,8 @@ internal class LevelStartPatch : IAffinity
         Plugin.Log.Info($"Applying intended settings to '{beatmapLevel.songName}': {plan}");
     }
 
-    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
     [UsedImplicitly]
+    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
     [AffinityFinalizer]
     private void Finalizer()
     {
@@ -62,5 +72,15 @@ internal class LevelStartPatch : IAffinity
 
         songCoreColors.SetEnvironmentColorsEnabled(false);
         restoreEnvironmentColors = false;
+    }
+
+    // A restart replays the same launch without StartStandardLevel, so the brightness override stays for it.
+    [UsedImplicitly]
+    [AffinityPatch(typeof(MenuTransitionsHelper), LevelFinishedMethodName)]
+    [AffinityPrefix]
+    private void LevelFinishedPrefix(LevelCompletionResults levelCompletionResults)
+    {
+        if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
+            beatSaberPlusLights.SetForceFullBrightness(false);
     }
 }

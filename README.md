@@ -12,6 +12,7 @@ Intended Experience applies the settings a GLS map needs when you launch it, **f
 
 - **Enable All Effects**: if your environment effects are set to **Off** or **No Flickering**, the map is played with **All Effects**.
 - **Use Intended Colors**: if your colors override is set to **All**, the map is played with **Notes Only**, so the lights keep the map's colors. If the map has its own environment colors, they're turned on through SongCore. Note and wall colors stay yours.
+- **Set Effects Brightness to 100%**: if [BeatSaberPlus](https://github.com/hardcpp/BeatSaberPlus) GameTweaker overrides your light brightness, the map is played at 100%. Your BeatSaberPlus setting isn't changed.
 - **Per-map exclusions**: keep your own settings on maps you choose.
 
 ## Install
@@ -27,6 +28,8 @@ Intended Experience applies the settings a GLS map needs when you launch it, **f
 - SiraUtil ^3.3.1
 - SongCore ^3.16.0
 
+Optional: BeatSaberPlus GameTweaker, for the brightness setting.
+
 ## Usage
 
 - **Settings → Mod Settings → Intended Experience**: turn the mod or each rule on or off, and manage excluded maps.
@@ -38,6 +41,8 @@ Intended Experience applies the settings a GLS map needs when you launch it, **f
 The mod hooks the level start and hands the game modified copies of your settings for that one launch. It works like Chroma's settings setter, but without the pop-up. Nothing is written to your player data, so there's nothing to restore afterwards, even if the game crashes mid-map.
 
 SongCore's environment colors setting is turned on only while the level loads, and back off straight after. That change stays in memory, so SongCore's config file is never touched.
+
+The BeatSaberPlus brightness works the same way. IE replaces the value GameTweaker loads at level start with 100%, for that map and its restarts only, and never changes GameTweaker's config.
 
 ## Building
 

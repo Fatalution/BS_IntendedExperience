@@ -16,6 +16,7 @@ internal class PluginConfig
     // ---- Rules ----
     public virtual bool ForceAllEffects { get; set; } = true;
     public virtual bool ForceIntendedColors { get; set; } = true;
+    public virtual bool ForceFullBrightness { get; set; } = true;
 
     // ---- Menu ----
     public virtual bool TintPlayButton { get; set; } = true;
