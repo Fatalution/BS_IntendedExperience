@@ -16,7 +16,7 @@
     <GameVersion>$(TargetGame)</GameVersion>
     <Description>Shows GLS (v3+) lightshows and modcharts as the mapper made them by applying the right effects and color settings for that map only.</Description>
     <!--<PluginIcon></PluginIcon>-->
-    <ProjectSource>https://github.com/Fatalution/IntendedExperience</ProjectSource>
+    <ProjectSource>https://github.com/Fatalution/BS_IntendedExperience</ProjectSource>
     <!--<ProjectHome></ProjectHome>-->
     <!--<DonateUrl></DonateUrl>-->
   </PropertyGroup>

@@ -1,10 +1,10 @@
 # Intended Experience
 
-Play GLS maps and modcharts the way the mapper made them.
+Makes GLS maps and modcharts look the way the mapper made them.
 
-GLS maps (v3+ environments, Weave and newer) take their light colors from the color scheme, so the mapper can't lock them in like Chroma can. An **All** color override, or effects set to **Off** or **No Flickering**, changes the lightshow. Modcharts (maps requiring Noodle Extensions, Mapping Extensions or Vivify) have the same problem.
+GLS maps (v3+ environments, Weave and newer) take their light colors from your color scheme, so mappers can't force their colors the way Chroma maps can. With an "All" color override, or effects set to Off or No Flickering, you end up seeing a different lightshow. Modcharts (Noodle Extensions, Mapping Extensions or Vivify) run into the same thing.
 
-Intended Experience fixes the settings when you launch one of these maps, **for that map only**. Your saved settings never change.
+Intended Experience switches the relevant settings when you start one of these maps and puts everything back for the next one.
 
 ## Supported versions
 
@@ -13,36 +13,34 @@ Intended Experience fixes the settings when you launch one of these maps, **for 
 | 1.44.1 | 4.3.0+ | 1.14.1+ | 3.3.1+ | 3.16.0+ |
 | 1.40.8 | 4.3.0+ | 1.12.5+ | 3.2.1+ | 3.15.3+ |
 
-Optional: **Heck** (Settings Setter support) and **BeatSaberPlus GameTweaker** (brightness setting).
+Optional: Heck for Settings Setter support, BeatSaberPlus GameTweaker for the brightness option.
 
 ## Install
 
-Download the zip for your game version from [Releases](https://github.com/Fatalution/IntendedExperience/releases) and extract it into your Beat Saber folder. You can get the requirements from [BSManager](https://www.bsmanager.io) or [BeatMods](https://beatmods.com).
+Grab the zip for your game version from [Releases](https://github.com/Fatalution/BS_IntendedExperience/releases) and extract it into your Beat Saber folder. The requirements are on [BSManager](https://www.bsmanager.io) and [BeatMods](https://beatmods.com).
 
-## What it changes
+## Settings
 
-- **Enable All Effects**: Off / No Flickering becomes All Effects.
-- **Use Intended Colors**: an All color override becomes Notes Only, and the map's SongCore environment colors are turned on. If the map sets both environment color pairs, your override stays, since the map's colors already replace it. Note and wall colors stay yours.
-- **Set Effects Brightness to 100%**: resets BeatSaberPlus GameTweaker's brightness override.
+- Enable All Effects: switches Off / No Flickering to All Effects.
+- Use Intended Colors: switches an All color override to Notes Only and turns on the map's SongCore environment colors. Maps that set both environment color pairs keep your override, as their colors already cover it. Note and wall colors stay the same.
+- Set Effects Brightness to 100%: resets BeatSaberPlus GameTweaker's brightness override.
 
-GLS maps and modcharts have separate toggles. A modchart on a GLS environment uses the modchart ones.
+GLS maps and modcharts each have their own set of these. Modcharts on GLS environments use the modchart set.
 
-## Using it
+## In game
 
-- **Mod Settings → Intended Experience**: toggles and the list of excluded maps.
-- **IE button** next to Play: exclude or include the selected map. Crossed out means excluded.
-- **Orange Play button**: IE will change something. Hover over it to see what.
-- **Gameplay Setup → Mods → Intended Experience**: the same exclude toggle and the list of changes.
+- Mod Settings → Intended Experience: settings and excluded maps.
+- IE button next to Play: excludes the selected map (crossed out when excluded).
+- Orange Play button: IE will change something for this map. Hover over it to see what.
+- Gameplay Setup → Mods → Intended Experience: exclude toggle and the list of changes.
 
 ## Heck Settings Setter
 
-If a map's Settings Setter sets effects or the color override itself, IE leaves that setting alone.
-
-On maps with their own Settings Setter, IE's changes are added to that window. On other maps, turn on **Show changes in Settings Setter** to get a matching IE window instead. Either way, Accept applies the changes and Decline skips them.
+Anything a map's Settings Setter already sets is left to it. IE adds its own rows to that window, so you can accept or decline everything in one place. For maps without a Settings Setter, turn on "Show changes in Settings Setter" to get the same kind of window for IE's changes.
 
 ## How it works
 
-IE hooks the level start and passes the game modified copies of your settings. SongCore's environment colors and BeatSaberPlus brightness are only changed in memory for that map. Nothing is saved, so there's nothing to undo if the game crashes.
+IE hooks the level start and hands the game edited copies of your settings for that map. SongCore's environment colors and the BeatSaberPlus brightness get swapped in memory for the map and restored afterwards, so nothing is written to your settings files.
 
 ## Building
 
@@ -56,13 +54,13 @@ Create `IntendedExperience/IntendedExperience.csproj.user` pointing at your game
 </Project>
 ```
 
-Then run `dotnet build` (or `dotnet build -c Release` for a zip).
+Then run `dotnet build`, or `dotnet build -c Release` for a zip.
 
-For 1.40.8, add `-p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"`, or set `BeatSaberDir_1_40_8` in the `.csproj.user`. Output goes to `bin/1.40.8/`.
+For 1.40.8, add `-p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"` or set `BeatSaberDir_1_40_8` in the `.csproj.user`. The output goes to `bin/1.40.8/`.
 
 ## Issues
 
-Report bugs on [GitHub Issues](https://github.com/Fatalution/IntendedExperience/issues) and attach `Logs/_latest.log` if you can.
+Report bugs on [GitHub Issues](https://github.com/Fatalution/BS_IntendedExperience/issues), ideally with `Logs/_latest.log` attached.
 
 ## License
 
