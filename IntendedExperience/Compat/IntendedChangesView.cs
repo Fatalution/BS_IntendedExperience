@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
@@ -8,32 +9,42 @@ using Heck.PlayView;
 using IntendedExperience.Core;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace IntendedExperience.Compat;
 
 /// <summary>
 /// IE's own window in Heck's play flow, shown when the map has no Settings Setter and the player turned the
-/// option on (maps with one get IE's rows in Heck's window instead). Only loaded when Heck is installed.
+/// option on (maps with one get IE's rows in Heck's window instead). Built like Heck's Settings Setter view.
+/// Only loaded when Heck is installed.
 /// </summary>
 [PlayViewControllerSettings(1, "Intended Experience")]
 internal class IntendedChangesView : BSMLResourceViewController, IPlayViewController
 {
-    private const string RowResourcePath = "IntendedExperience.UI.IntendedChangesRow.bsml";
+    private const string ContentResourcePath = "IntendedExperience.UI.IntendedChangesContent.bsml";
+
+    // Heck raises its header the same way so it sits above the rows panel.
+    private const float HeaderAnchorMaxY = 1.55f;
 
     private readonly List<SettingChange> changes = new();
 
     private LaunchPlanner launchPlanner = null!;
     private SettingsSetterPrompt prompt = null!;
     private BSMLParser bsmlParser = null!;
-    private string rowTemplate = string.Empty;
+    private string contentTemplate = string.Empty;
 
-    [UIObject("rows")]
-    private readonly GameObject rows = null!;
+    [UIComponent("top-vertical")]
+    private readonly VerticalLayoutGroup topVertical = null!;
+    [UIObject("content-object")]
+    private readonly GameObject? contentObject = null;
 
     public event Action? Finished;
 
     public override string ResourceName => "IntendedExperience.UI.IntendedChangesView.bsml";
+
+    [UIValue("rows")]
+    private List<object> Rows => changes.Select(change => (object)new ChangeRow(change)).ToList();
 
     [Inject]
     [UsedImplicitly]
@@ -42,7 +53,7 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
         this.launchPlanner = launchPlanner;
         this.prompt = prompt;
         this.bsmlParser = bsmlParser;
-        rowTemplate = Utilities.GetResourceContent(typeof(IntendedChangesView).Assembly, RowResourcePath);
+        contentTemplate = Utilities.GetResourceContent(typeof(IntendedChangesView).Assembly, ContentResourcePath);
     }
 
     /// <summary>Called by Heck when Play is pressed; returning false skips this window.</summary>
@@ -65,14 +76,22 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
             return false;
 
         prompt.Offer(key);
-        RebuildRows();
+
+        // Like Heck, parse the rows panel fresh for every map so it lays out correctly.
+        if (contentObject != null)
+            Destroy(contentObject);
+        bsmlParser.Parse(contentTemplate, gameObject, this);
         return true;
     }
 
     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-        RebuildRows();
+        if (!addedToHierarchy)
+            return;
+
+        var header = (RectTransform)topVertical.transform;
+        header.anchorMax = new Vector2(header.anchorMax.x, HeaderAnchorMaxY);
     }
 
     [UIAction("accept-click")]
@@ -86,22 +105,6 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
     // Nothing accepted, so IE applies none of its changes for this launch.
     [UIAction("decline-click")]
     private void DeclineClick() => Finished?.Invoke();
-
-    // The view is parsed on first activation, after the first Init; rows are rebuilt whenever both are ready.
-    private void RebuildRows()
-    {
-        if (rows == null)
-            return;
-
-        foreach (Transform row in rows.transform)
-        {
-            row.gameObject.SetActive(false);
-            Destroy(row.gameObject);
-        }
-
-        foreach (var change in changes)
-            bsmlParser.Parse(rowTemplate, rows, new ChangeRow(change));
-    }
 
     /// <summary>Host for one row: setting name on the left, "from -> to" on the right.</summary>
     private class ChangeRow
