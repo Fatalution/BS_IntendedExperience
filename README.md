@@ -1,96 +1,68 @@
 # Intended Experience
 
-See GLS lightshows and modcharts the way the mapper made them.
+Play GLS maps and modcharts the way the mapper made them.
 
-Maps for v3+ environments (**Weave and newer**) use the group lighting system (GLS), where the lights take their colors from the color scheme. Chroma colors each event directly, but a GLS mapper has no way to enforce the colors they intended. If your colors override is set to **All**, or your environment effects are set to **Off** or **No Flickering**, the lightshow you see isn't the one the mapper designed.
+GLS maps (v3+ environments, Weave and newer) take their light colors from the color scheme, so the mapper can't lock them in like Chroma can. An **All** color override, or effects set to **Off** or **No Flickering**, changes the lightshow. Modcharts (maps requiring Noodle Extensions, Mapping Extensions or Vivify) have the same problem.
 
-**Modcharts**, meaning maps that require Noodle Extensions, Mapping Extensions or Vivify, get the same treatment.
+Intended Experience fixes the settings when you launch one of these maps, **for that map only**. Your saved settings never change.
 
-Intended Experience applies the settings these maps need when you launch them, **for that map only**. Your saved settings are never changed, so the next map plays with your normal settings.
+## Supported versions
 
-**Game version:** 1.44.1
+| Beat Saber | BSIPA | BSML | SiraUtil | SongCore |
+|---|---|---|---|---|
+| 1.44.1 | 4.3.0+ | 1.14.1+ | 3.3.1+ | 3.16.0+ |
+| 1.40.8 | 4.3.0+ | 1.12.5+ | 3.2.1+ | 3.15.3+ |
 
-## Features
-
-- **Enable All Effects**: if your environment effects are set to **Off** or **No Flickering**, the map is played with **All Effects**.
-- **Use Intended Colors**: if your colors override is set to **All**, the map is played with **Notes Only**, so the lights keep the map's colors. If the map has its own environment colors, they're turned on through SongCore. If it sets both environment color pairs (normal and boost), those already replace your override, so it isn't switched to Notes Only. Note and wall colors stay yours.
-- **Set Effects Brightness to 100%**: if [BeatSaberPlus](https://github.com/hardcpp/BeatSaberPlus) GameTweaker overrides your light brightness, the map is played at 100%. Your BeatSaberPlus setting isn't changed.
-- **Per-map exclusions**: keep your own settings on maps you choose.
+Optional: **Heck** (Settings Setter support) and **BeatSaberPlus GameTweaker** (brightness setting).
 
 ## Install
 
-1. Install the [requirements](#requirements); all of them are available in [BSManager](https://www.bsmanager.io) and on [BeatMods](https://beatmods.com).
-2. Download the latest release from [Releases](https://github.com/Fatalution/IntendedExperience/releases).
-3. Extract it into your Beat Saber folder, so that `IntendedExperience.dll` ends up in `Plugins`.
+Download the zip for your game version from [Releases](https://github.com/Fatalution/IntendedExperience/releases) and extract it into your Beat Saber folder. You can get the requirements from [BSManager](https://www.bsmanager.io) or [BeatMods](https://beatmods.com).
 
-### Requirements
+## What it changes
 
-- BSIPA ^4.3.0
-- BeatSaberMarkupLanguage ^1.14.1
-- SiraUtil ^3.3.1
-- SongCore ^3.16.0
+- **Enable All Effects**: Off / No Flickering becomes All Effects.
+- **Use Intended Colors**: an All color override becomes Notes Only, and the map's SongCore environment colors are turned on. If the map sets both environment color pairs, your override stays, since the map's colors already replace it. Note and wall colors stay yours.
+- **Set Effects Brightness to 100%**: resets BeatSaberPlus GameTweaker's brightness override.
 
-Optional: BeatSaberPlus GameTweaker, for the brightness setting.
+GLS maps and modcharts have separate toggles. A modchart on a GLS environment uses the modchart ones.
 
-## Usage
+## Using it
 
-- **Settings → Mod Settings → Intended Experience**: turn the mod on or off, set the rules separately for GLS maps and modcharts, and manage excluded maps. A map that is both uses the modchart rules.
-- **IE button** (next to Play, shown on GLS maps and modcharts only): click it to exclude the selected map or include it again. A struck-out "IE" means the map is excluded.
-- **Gameplay Setup → Mods → Intended Experience** shows what the next launch will change and has the same exclude toggle.
+- **Mod Settings → Intended Experience**: toggles and the list of excluded maps.
+- **IE button** next to Play: exclude or include the selected map. Crossed out means excluded.
+- **Orange Play button**: IE will change something. Hover over it to see what.
+- **Gameplay Setup → Mods → Intended Experience**: the same exclude toggle and the list of changes.
+
+## Heck Settings Setter
+
+If a map's Settings Setter sets effects or the color override itself, IE leaves that setting alone.
+
+IE can also list its changes in the Settings Setter window (**Show changes in Settings Setter** in the settings). Maps with their own Settings Setter always list them there. Accept applies them, Decline skips them.
 
 ## How it works
 
-The mod hooks the level start and hands the game modified copies of your settings for that one launch. It works like Chroma's settings setter, but without the pop-up. Nothing is written to your player data, so there's nothing to restore afterwards, even if the game crashes mid-map.
-
-SongCore's environment colors setting is turned on only while the level loads, and back off straight after. That change stays in memory, so SongCore's config file is never touched.
-
-The BeatSaberPlus brightness works the same way. IE replaces the value GameTweaker loads at level start with 100%, for that map and its restarts only, and never changes GameTweaker's config.
-
-### Heck Settings Setter
-
-If a map uses Heck's Settings Setter, that pop-up is the mapper's own call, so IE stays out of its way:
-
-- If the Settings Setter sets **environment effects**, Enable All Effects isn't applied.
-- If it sets **Override Default Colors**, the colors override isn't switched to Notes Only.
-
-This applies whether you accept or decline the pop-up. Everything the Settings Setter doesn't set still applies, such as the map's SongCore environment colors and the BeatSaberPlus brightness.
-
-#### Show changes in Settings Setter (optional)
-
-Turn this on under Menu in IE's settings to have IE list its own changes in Heck's Settings Setter window when you press Play, for example `[Intended Experience] Color Override: All -> Notes Only`.
-
-- If the map has its own Settings Setter, IE's rows appear next to the mapper's. This happens even with the option off, because that window appears anyway.
-- If it doesn't, the window appears with only IE's rows.
-- **Accept** applies IE's changes for that map. **Decline** applies none of them.
-- Launches that skip the window apply IE as usual. That includes built-in maps and songs started for you by BeatSaberPlus Multiplayer+.
+IE hooks the level start and passes the game modified copies of your settings. SongCore's environment colors and BeatSaberPlus brightness are only changed in memory for that map. Nothing is saved, so there's nothing to undo if the game crashes.
 
 ## Building
 
-1. Create `IntendedExperience/IntendedExperience.csproj.user` that points at a Beat Saber install with the requirements installed:
-   ```xml
-   <?xml version="1.0" encoding="utf-8"?>
-   <Project>
-     <PropertyGroup>
-       <BeatSaberDir>C:/Path/To/Beat Saber</BeatSaberDir>
-     </PropertyGroup>
-   </Project>
-   ```
-2. Run `dotnet build`. [BSMT](https://github.com/Zingabopp/BeatSaberModdingTools) copies the plugin into `<BeatSaberDir>/Plugins`.
-3. For a release, run `dotnet build -c Release`. This also produces a release zip in `IntendedExperience/bin/Release/net472/zip`.
+Create `IntendedExperience/IntendedExperience.csproj.user` pointing at your game:
 
-### Building for Beat Saber 1.40.8
-
-The default build targets 1.44.1. For 1.40.8, add `-p:TargetGame=1.40.8` and point the build at a 1.40.8 install. Either pass `-p:BeatSaberDir=…` on the command line, or set `BeatSaberDir_1_40_8` in your `.csproj.user`:
-
-```
-dotnet build -c Release -p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"
+```xml
+<Project>
+  <PropertyGroup>
+    <BeatSaberDir>C:/Path/To/Beat Saber</BeatSaberDir>
+  </PropertyGroup>
+</Project>
 ```
 
-The output goes to `IntendedExperience/bin/1.40.8/`, and the manifest uses the 1.40.8 versions of BSML, SiraUtil and SongCore.
+Then run `dotnet build` (or `dotnet build -c Release` for a zip).
+
+For 1.40.8, add `-p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"`, or set `BeatSaberDir_1_40_8` in the `.csproj.user`. Output goes to `bin/1.40.8/`.
 
 ## Issues
 
-Report bugs and suggestions on [GitHub Issues](https://github.com/Fatalution/IntendedExperience/issues). Attach `Logs/_latest.log` from your Beat Saber folder when you can.
+Report bugs on [GitHub Issues](https://github.com/Fatalution/IntendedExperience/issues) and attach `Logs/_latest.log` if you can.
 
 ## License
 
