@@ -1,0 +1,5 @@
+<horizontal xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'
+            preferred-width='100'>
+  <text text='~setting' align='Left' font-size='4'/>
+  <text text='~change' align='Right' font-size='4'/>
+</horizontal>

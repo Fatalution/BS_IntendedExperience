@@ -38,7 +38,7 @@ GLS maps and modcharts have separate toggles. A modchart on a GLS environment us
 
 If a map's Settings Setter sets effects or the color override itself, IE leaves that setting alone.
 
-IE can also list its changes in the Settings Setter window (**Show changes in Settings Setter** in the settings). Maps with their own Settings Setter always list them there. Accept applies them, Decline skips them.
+On maps with their own Settings Setter, IE's changes are added to that window. On other maps, turn on **Show changes in Settings Setter** to get a matching IE window instead. Either way, Accept applies the changes and Decline skips them.
 
 ## How it works
 

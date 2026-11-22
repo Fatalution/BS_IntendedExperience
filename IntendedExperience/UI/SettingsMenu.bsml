@@ -14,7 +14,7 @@
                         hover-hint="Shows hover hints on the Play and IE buttons."/>
         <toggle-setting text="Show changes in Settings Setter" value="show-in-settings-setter" apply-on-change="true"
                         interactable="~settings-setter-available"
-                        hover-hint="Lists IE modifications in Settings Setter after pressing Play if a map doesn't have Settings Setter configured. Requires Heck."/>
+                        hover-hint="On maps without Settings Setter, shows IE's changes in a matching window after pressing Play. Requires Heck."/>
 
         <horizontal pref-height="6">
             <text text="GLS Maps" font-size="4" color="#AAAAAA" word-wrapping="false"/>

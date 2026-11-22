@@ -113,7 +113,7 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
 
         var level = parameters.BeatmapLevel;
         var key = parameters.BeatmapKey;
-        if (!prompt.WillShowChangesFor(level, key))
+        if (!prompt.ShowsInMapWindow(level, key))
             return;
 
         var changes = launchPlanner

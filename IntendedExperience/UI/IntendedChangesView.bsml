@@ -1,0 +1,18 @@
+<!-- Mirrors Heck's Settings Setter window so IE's own window looks the same. -->
+<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
+  <vertical child-control-height='false'>
+    <text text='Intended Experience will change these settings for this map. Apply them?&#xA;(Your saved settings are never changed.)'
+          align='Center' font-size='4'/>
+  </vertical>
+  <bg>
+    <vertical anchor-max-y='1.05' bg='round-rect-panel' horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
+      <scroll-view preferred-height='50' preferred-width='120'>
+        <vertical id='rows' horizontal-fit='Unconstrained' child-control-width='true' child-expand-width='true'/>
+      </scroll-view>
+    </vertical>
+  </bg>
+  <horizontal anchor-max-y='0.25' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' spacing='2'>
+    <button text='decline' on-click='decline-click' preferred-height='10' preferred-width='24'/>
+    <primary-button text='accept' on-click='accept-click' preferred-height='10' preferred-width='24'/>
+  </horizontal>
+</bg>

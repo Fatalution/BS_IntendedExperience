@@ -5,8 +5,9 @@ using IntendedExperience.Compat;
 namespace IntendedExperience.Core;
 
 /// <summary>
-/// The player's answer to IE's changes shown in Heck's Settings Setter window.
-/// Free of Heck types so the rest of IE works without Heck; the Heck hook fills it in.
+/// The player's answer to IE's changes shown before the level starts: as extra rows in the map's own Heck Settings
+/// Setter window, or in IE's own window in Heck's play flow when the map has none.
+/// Free of Heck types so the rest of IE works without Heck; the Heck hooks fill it in.
 /// </summary>
 internal class SettingsSetterPrompt
 {
@@ -25,16 +26,20 @@ internal class SettingsSetterPrompt
     /// <summary>The Heck hook is active, so the "show in Settings Setter" option can be used.</summary>
     public bool IsAvailable { get; set; }
 
-    /// <summary>Whether the window can show IE's changes for this map (custom maps only); set by the Heck hook.</summary>
+    /// <summary>Whether rows can be added to the map's Settings Setter window (custom maps only); set by the Heck hook.</summary>
     public Func<BeatmapLevel, BeatmapKey, bool> CanOfferFor { get; set; } = (_, _) => false;
 
-    /// <summary>
-    /// IE's changes for this map go into the Settings Setter window: when the option is on, or when the map has its
-    /// own Settings Setter, since that window appears anyway.
-    /// </summary>
+    /// <summary>The map has its own Settings Setter, whose window appears anyway: IE's rows are added to it.</summary>
+    public bool ShowsInMapWindow(BeatmapLevel level, BeatmapKey key) =>
+        IsAvailable && CanOfferFor(level, key) && heckSettingsSetter.GetControlledSettings(level, key).Present;
+
+    /// <summary>The option is on and the map has no Settings Setter: IE shows its own window instead.</summary>
+    public bool ShowsOwnWindow(BeatmapLevel level, BeatmapKey key) =>
+        IsAvailable && config.ShowInSettingsSetter && !heckSettingsSetter.GetControlledSettings(level, key).Present;
+
+    /// <summary>IE's changes for this map are shown before the level starts, so the player decides on them.</summary>
     public bool WillShowChangesFor(BeatmapLevel level, BeatmapKey key) =>
-        IsAvailable && CanOfferFor(level, key)
-        && (config.ShowInSettingsSetter || heckSettingsSetter.GetControlledSettings(level, key).Present);
+        ShowsInMapWindow(level, key) || ShowsOwnWindow(level, key);
 
     public void Offer(BeatmapKey key)
     {

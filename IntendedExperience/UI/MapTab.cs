@@ -12,6 +12,9 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
     private const string TabName = "Intended Experience";
     private const string ResourcePath = "IntendedExperience.UI.MapTab.bsml";
 
+    // IE only applies to solo-style launches (Solo, Party, and mod flows like Multiplayer+), not Online or Campaign.
+    private const MenuType TabMenus = MenuType.Solo | MenuType.Custom;
+
     private readonly GameplaySetup gameplaySetup;
     private readonly LaunchPreview launchPreview;
 
@@ -55,7 +58,7 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 
     public void Initialize()
     {
-        gameplaySetup.AddTab(TabName, ResourcePath, this);
+        gameplaySetup.AddTab(TabName, ResourcePath, this, TabMenus);
         launchPreview.Changed += NotifyAllChanged;
     }
 
