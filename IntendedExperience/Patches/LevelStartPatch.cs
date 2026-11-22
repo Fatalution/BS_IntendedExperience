@@ -1,7 +1,11 @@
+using System;
+using System.Linq;
+using HarmonyLib;
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
 using JetBrains.Annotations;
 using SiraUtil.Affinity;
+using Zenject;
 
 namespace IntendedExperience.Patches;
 
@@ -9,15 +13,21 @@ namespace IntendedExperience.Patches;
 /// Hands the level launch modified copies of the player's settings, so the overrides last for that map only
 /// and the saved settings are never touched.
 /// </summary>
-internal class LevelStartPatch : IAffinity
+internal class LevelStartPatch : IInitializable, IDisposable, IAffinity
 {
+    private const string HarmonyId = "com.fatalution.IntendedExperience.LevelStart";
+
     // Private in the game, so it can't be referenced with nameof.
     private const string LevelFinishedMethodName = "HandleMainGameSceneDidFinish";
+
+    // Read by the static Harmony patches.
+    private static LevelStartPatch? active;
 
     private readonly LaunchPlanner launchPlanner;
     private readonly SongCoreColors songCoreColors;
     private readonly BeatSaberPlusLights beatSaberPlusLights;
     private readonly SettingsSetterPrompt settingsSetterPrompt;
+    private readonly Harmony harmony = new(HarmonyId);
 
     private bool restoreEnvironmentColors;
 
@@ -30,10 +40,35 @@ internal class LevelStartPatch : IAffinity
         this.settingsSetterPrompt = settingsSetterPrompt;
     }
 
-    [UsedImplicitly]
-    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
-    [AffinityPrefix]
-    private void Prefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
+    // Some game versions (e.g. 1.40.8) have more than one StartStandardLevel overload; all of them are patched.
+    // They share the parameters used here and don't call each other, so each launch runs this once.
+    public void Initialize()
+    {
+        active = this;
+        var overloads = AccessTools.GetDeclaredMethods(typeof(MenuTransitionsHelper))
+            .Where(method => method.Name == nameof(MenuTransitionsHelper.StartStandardLevel));
+        foreach (var overload in overloads)
+        {
+            harmony.Patch(overload,
+                prefix: new HarmonyMethod(typeof(LevelStartPatch), nameof(StartLevelPrefix)),
+                finalizer: new HarmonyMethod(typeof(LevelStartPatch), nameof(StartLevelFinalizer)));
+        }
+    }
+
+    public void Dispose()
+    {
+        harmony.UnpatchSelf();
+        if (active == this)
+            active = null;
+    }
+
+    private static void StartLevelPrefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
+        ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings) =>
+        active?.ApplyPlan(beatmapKey, beatmapLevel, ref playerOverrideLightshowColors, ref playerSpecificSettings);
+
+    private static void StartLevelFinalizer() => active?.RestoreEnvironmentColors();
+
+    private void ApplyPlan(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
         ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings)
     {
         var plan = launchPlanner.Plan(beatmapLevel, beatmapKey, playerSpecificSettings, playerOverrideLightshowColors);
@@ -67,10 +102,7 @@ internal class LevelStartPatch : IAffinity
         Plugin.Log.Info($"Applying intended settings to '{beatmapLevel.songName}': {plan}");
     }
 
-    [UsedImplicitly]
-    [AffinityPatch(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel))]
-    [AffinityFinalizer]
-    private void Finalizer()
+    private void RestoreEnvironmentColors()
     {
         if (!restoreEnvironmentColors)
             return;

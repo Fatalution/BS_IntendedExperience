@@ -78,6 +78,16 @@ Turn this on under Menu in IE's settings to have IE list its own changes in Heck
 2. Run `dotnet build`. [BSMT](https://github.com/Zingabopp/BeatSaberModdingTools) copies the plugin into `<BeatSaberDir>/Plugins`.
 3. For a release, run `dotnet build -c Release`. This also produces a release zip in `IntendedExperience/bin/Release/net472/zip`.
 
+### Building for Beat Saber 1.40.8
+
+The default build targets 1.44.1. For 1.40.8, add `-p:TargetGame=1.40.8` and point the build at a 1.40.8 install. Either pass `-p:BeatSaberDir=…` on the command line, or set `BeatSaberDir_1_40_8` in your `.csproj.user`:
+
+```
+dotnet build -c Release -p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"
+```
+
+The output goes to `IntendedExperience/bin/1.40.8/`, and the manifest uses the 1.40.8 versions of BSML, SiraUtil and SongCore.
+
 ## Issues
 
 Report bugs and suggestions on [GitHub Issues](https://github.com/Fatalution/IntendedExperience/issues). Attach `Logs/_latest.log` from your Beat Saber folder when you can.

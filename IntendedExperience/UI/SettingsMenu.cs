@@ -175,7 +175,11 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // Maps that aren't loaded (deleted, or SongCore still loading) fall back to their hash.
     private string DisplayName(string levelId)
     {
+#if GAME_1_40
+        var level = beatmapLevelsModel.GetBeatmapLevel(levelId);
+#else
         var level = beatmapLevelsModel.GetBeatmapLevel(levelId, true);
+#endif
         if (level == null)
             return $"<color=#808080>Unknown map ({levelId.Replace(CustomLevelPrefix, string.Empty)})</color>";
 

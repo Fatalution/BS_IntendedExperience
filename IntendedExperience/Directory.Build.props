@@ -2,13 +2,18 @@
 <!-- This file contains project properties used by the build. -->
 <Project>
 
+  <!-- Game version to build for: 1.44.1 (default) or 1.40.8, e.g. `dotnet build -p:TargetGame=1.40.8`. -->
+  <PropertyGroup>
+    <TargetGame Condition="'$(TargetGame)' == ''">1.44.1</TargetGame>
+  </PropertyGroup>
+
   <!-- Plugin Metadata -->
   <PropertyGroup>
     <PluginId>IntendedExperience</PluginId>
     <PluginName>IntendedExperience</PluginName>
     <Authors>Fatalution</Authors>
     <Version>0.3.0</Version>
-    <GameVersion>1.44.1</GameVersion>
+    <GameVersion>$(TargetGame)</GameVersion>
     <Description>Shows GLS (v3+) lightshows and modcharts as the mapper made them by applying the right effects and color settings for that map only.</Description>
     <!--<PluginIcon></PluginIcon>-->
     <ProjectSource>https://github.com/Fatalution/IntendedExperience</ProjectSource>
@@ -19,18 +24,32 @@
   <!-- Plugin Dependencies -->
   <ItemGroup>
     <DependsOn Include="BSIPA" Version="^4.3.0"/>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetGame)' == '1.44.1'">
     <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.14.1"/>
     <DependsOn Include="SiraUtil" Version="^3.3.1"/>
     <DependsOn Include="SongCore" Version="^3.16.0"/>
   </ItemGroup>
-  
+  <ItemGroup Condition="'$(TargetGame)' == '1.40.8'">
+    <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.12.5"/>
+    <DependsOn Include="SiraUtil" Version="^3.2.1"/>
+    <DependsOn Include="SongCore" Version="^3.15.3"/>
+  </ItemGroup>
+
+  <!-- Per-version code differences and separate build folders, so the two builds never mix. -->
+  <PropertyGroup Condition="'$(TargetGame)' == '1.40.8'">
+    <DefineConstants>$(DefineConstants);GAME_1_40</DefineConstants>
+    <BaseOutputPath>bin\1.40.8\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\1.40.8\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
   <PropertyGroup>
     <BSMTProjectType>BSIPA</BSMTProjectType>
     <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)' != 'Release'">
     <DisableZipRelease>true</DisableZipRelease>
   </PropertyGroup>
-  
+
 </Project>
