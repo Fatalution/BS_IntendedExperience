@@ -34,6 +34,15 @@ internal class SongCoreColors
             environmentColorsField.SetValue(songCoreConfig, enabled);
     }
 
+    /// <summary>The map sets both environment color pairs (normal and boost), so they replace any player override.</summary>
+    public static bool HasFullEffectColors(BeatmapKey key)
+    {
+        var difficultyData = Collections.GetCustomLevelSongDifficultyData(key);
+        return difficultyData != null
+               && difficultyData._envColorLeft != null && difficultyData._envColorRight != null
+               && difficultyData._envColorLeftBoost != null && difficultyData._envColorRightBoost != null;
+    }
+
     public static bool HasEffectColors(BeatmapKey key)
     {
         var difficultyData = Collections.GetCustomLevelSongDifficultyData(key);

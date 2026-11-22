@@ -28,6 +28,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly PluginConfig config;
     private readonly MapExclusions mapExclusions;
     private readonly BeatSaberPlusLights beatSaberPlusLights;
+    private readonly SettingsSetterPrompt settingsSetterPrompt;
     private readonly string rowTemplate;
 
     [UIObject("settings-body")]
@@ -36,7 +37,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly GameObject excludedRows = null!;
 
     public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
-        PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights)
+        PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights,
+        SettingsSetterPrompt settingsSetterPrompt)
     {
         this.bsmlSettings = bsmlSettings;
         this.bsmlParser = bsmlParser;
@@ -44,6 +46,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         this.config = config;
         this.mapExclusions = mapExclusions;
         this.beatSaberPlusLights = beatSaberPlusLights;
+        this.settingsSetterPrompt = settingsSetterPrompt;
         rowTemplate = Utilities.GetResourceContent(typeof(SettingsMenu).Assembly, RowResourcePath);
     }
 
@@ -61,29 +64,52 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         }
     }
 
-    [UIValue("force-all-effects")]
-    public bool ForceAllEffects { get => config.ForceAllEffects; set => config.ForceAllEffects = value; }
+    // ---- GLS rules ----
+    [UIValue("gls-force-all-effects")]
+    public bool GlsForceAllEffects { get => config.Gls.ForceAllEffects; set => config.Gls.ForceAllEffects = value; }
 
-    [UIValue("force-intended-colors")]
-    public bool ForceIntendedColors { get => config.ForceIntendedColors; set => config.ForceIntendedColors = value; }
+    [UIValue("gls-force-intended-colors")]
+    public bool GlsForceIntendedColors { get => config.Gls.ForceIntendedColors; set => config.Gls.ForceIntendedColors = value; }
 
-    [UIValue("force-full-brightness")]
-    public bool ForceFullBrightness { get => config.ForceFullBrightness; set => config.ForceFullBrightness = value; }
+    [UIValue("gls-force-full-brightness")]
+    public bool GlsForceFullBrightness { get => config.Gls.ForceFullBrightness; set => config.Gls.ForceFullBrightness = value; }
 
-    [UIValue("beat-saber-plus-available")]
-    public bool BeatSaberPlusAvailable => beatSaberPlusLights.IsAvailable;
+    // ---- Modchart rules ----
+    [UIValue("modcharts-force-all-effects")]
+    public bool ModchartsForceAllEffects { get => config.Modcharts.ForceAllEffects; set => config.Modcharts.ForceAllEffects = value; }
 
+    [UIValue("modcharts-force-intended-colors")]
+    public bool ModchartsForceIntendedColors { get => config.Modcharts.ForceIntendedColors; set => config.Modcharts.ForceIntendedColors = value; }
+
+    [UIValue("modcharts-force-full-brightness")]
+    public bool ModchartsForceFullBrightness { get => config.Modcharts.ForceFullBrightness; set => config.Modcharts.ForceFullBrightness = value; }
+
+    // ---- Menu ----
     [UIValue("tint-play-button")]
     public bool TintPlayButton { get => config.TintPlayButton; set => config.TintPlayButton = value; }
 
     [UIValue("show-tooltips")]
     public bool ShowTooltips { get => config.ShowTooltips; set => config.ShowTooltips = value; }
 
+    [UIValue("show-in-settings-setter")]
+    public bool ShowInSettingsSetter { get => config.ShowInSettingsSetter; set => config.ShowInSettingsSetter = value; }
+
+    // ---- Optional mods (grey out their toggles when missing) ----
+    [UIValue("beat-saber-plus-available")]
+    public bool BeatSaberPlusAvailable => beatSaberPlusLights.IsAvailable;
+
+    [UIValue("settings-setter-available")]
+    public bool SettingsSetterAvailable => settingsSetterPrompt.IsAvailable;
+
     // ---- Exclusions ----
     [UIValue("exclusions-text")]
     public string ExclusionsText => mapExclusions.LevelIds.Count == 0
         ? "Excluded maps: none"
         : $"Excluded maps: {mapExclusions.LevelIds.Count}";
+
+    // ---- Footer ----
+    [UIValue("version-text")]
+    public string VersionText => $"v{Plugin.Version}";
 
     public void Initialize()
     {

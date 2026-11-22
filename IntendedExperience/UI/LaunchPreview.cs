@@ -11,15 +11,18 @@ internal class LaunchPreview : ITickable
     private readonly PlayerDataModel playerDataModel;
     private readonly LaunchPlanner launchPlanner;
     private readonly MapExclusions mapExclusions;
+    private readonly SettingsSetterPrompt settingsSetterPrompt;
     private readonly PluginConfig config;
 
     public LaunchPreview(StandardLevelDetailViewController levelDetailViewController, PlayerDataModel playerDataModel,
-        LaunchPlanner launchPlanner, MapExclusions mapExclusions, PluginConfig config)
+        LaunchPlanner launchPlanner, MapExclusions mapExclusions, SettingsSetterPrompt settingsSetterPrompt,
+        PluginConfig config)
     {
         this.levelDetailViewController = levelDetailViewController;
         this.playerDataModel = playerDataModel;
         this.launchPlanner = launchPlanner;
         this.mapExclusions = mapExclusions;
+        this.settingsSetterPrompt = settingsSetterPrompt;
         this.config = config;
     }
 
@@ -29,8 +32,11 @@ internal class LaunchPreview : ITickable
     public LaunchPlan Plan { get; private set; }
     public bool Excluded { get; private set; }
 
-    /// <summary>The selected map uses a v3+ environment, so the mod can affect it.</summary>
+    /// <summary>The selected map is a GLS map or a modchart, so the mod can affect it.</summary>
     public bool Qualifies { get; private set; }
+
+    /// <summary>The changes will be listed in Heck's Settings Setter window when Play is pressed.</summary>
+    public bool ShownInSettingsSetter { get; private set; }
 
     public bool ShowTooltips { get; private set; }
 
@@ -44,16 +50,18 @@ internal class LaunchPreview : ITickable
         var key = levelDetailViewController.beatmapKey;
         var plan = level == null ? default : PlanFor(level, key);
         bool excluded = level != null && mapExclusions.IsExcluded(level.levelID);
-        bool qualifies = level != null && launchPlanner.UsesGroupLighting(level, key);
+        bool qualifies = level != null && launchPlanner.Qualifies(level, key);
+        bool shownInSettingsSetter = level != null && settingsSetterPrompt.WillShowChangesFor(level, key);
         bool showTooltips = config.ShowTooltips;
         if (level == Level && plan == Plan && excluded == Excluded && qualifies == Qualifies
-            && showTooltips == ShowTooltips)
+            && shownInSettingsSetter == ShownInSettingsSetter && showTooltips == ShowTooltips)
             return;
 
         Level = level;
         Plan = plan;
         Excluded = excluded;
         Qualifies = qualifies;
+        ShownInSettingsSetter = shownInSettingsSetter;
         ShowTooltips = showTooltips;
         Changed?.Invoke();
     }

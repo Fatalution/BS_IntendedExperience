@@ -16,7 +16,9 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
 {
     private const float TintHue = 30f / 360f;
     private const string ResampleMethodName = "HandleButtonSelectionStateDidChange";
-    private const string HintHeader = "Intended Experience will apply for this map:";
+    private const string HintHeader = "Intended Experience will apply this:";
+    private const string SettingsSetterHint =
+        "Intended Experience will change settings for this map. You'll see them in the Settings Setter window.";
 
     private static readonly MethodInfo ResampleMethod =
         typeof(ButtonStaticAnimations).GetMethod(ResampleMethodName, BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -81,7 +83,9 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
         // Also runs when the menu reappears, so settings changed meanwhile apply here.
         // A disabled hint gets no pointer events, so it only shows while the button is tinted.
         hoverHint.enabled = IsTinted && launchPreview.ShowTooltips;
-        hoverHint.text = $"{HintHeader}\n{launchPreview.Plan.DescribeChanges()}";
+        hoverHint.text = launchPreview.ShownInSettingsSetter
+            ? SettingsSetterHint
+            : $"{HintHeader}\n{launchPreview.Plan.DescribeChanges()}";
 
         if (!IsTinted)
             return;

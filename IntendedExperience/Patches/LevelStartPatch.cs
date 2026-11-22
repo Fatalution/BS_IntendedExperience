@@ -17,15 +17,17 @@ internal class LevelStartPatch : IAffinity
     private readonly LaunchPlanner launchPlanner;
     private readonly SongCoreColors songCoreColors;
     private readonly BeatSaberPlusLights beatSaberPlusLights;
+    private readonly SettingsSetterPrompt settingsSetterPrompt;
 
     private bool restoreEnvironmentColors;
 
     public LevelStartPatch(LaunchPlanner launchPlanner, SongCoreColors songCoreColors,
-        BeatSaberPlusLights beatSaberPlusLights)
+        BeatSaberPlusLights beatSaberPlusLights, SettingsSetterPrompt settingsSetterPrompt)
     {
         this.launchPlanner = launchPlanner;
         this.songCoreColors = songCoreColors;
         this.beatSaberPlusLights = beatSaberPlusLights;
+        this.settingsSetterPrompt = settingsSetterPrompt;
     }
 
     [UsedImplicitly]
@@ -35,6 +37,9 @@ internal class LevelStartPatch : IAffinity
         ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings)
     {
         var plan = launchPlanner.Plan(beatmapLevel, beatmapKey, playerSpecificSettings, playerOverrideLightshowColors);
+
+        // If the changes were shown in the Settings Setter window, only what the player accepted applies.
+        plan = settingsSetterPrompt.ApplyDecision(beatmapKey, plan);
 
         // Set on every launch so a previous map's state never carries over.
         beatSaberPlusLights.SetForceFullBrightness(plan.SetFullBrightness);

@@ -54,12 +54,21 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="CustomJSONData">
+            <HintPath>$(BeatSaberDir)\Plugins\CustomJSONData.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="DataModels">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\DataModels.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="GameplayCore">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- Optional at runtime: only HeckSettingsSetterPrompt uses it, and it's only loaded when Heck is installed. -->
+        <Reference Include="Heck">
+            <HintPath>$(BeatSaberDir)\Plugins\Heck.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="Hive.Versioning">

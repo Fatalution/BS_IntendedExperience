@@ -12,11 +12,13 @@ namespace IntendedExperience;
 internal class Plugin
 {
     internal static IpaLogger Log { get; private set; } = null!;
+    internal static string Version { get; private set; } = string.Empty;
 
     [Init]
     public Plugin(IpaLogger ipaLogger, IpaConfig ipaConfig, Zenjector zenjector, PluginMetadata pluginMetadata)
     {
         Log = ipaLogger;
+        Version = pluginMetadata.HVersion.ToString();
         zenjector.UseLogger(Log);
 
         var pluginConfig = ipaConfig.Generated<PluginConfig>();
