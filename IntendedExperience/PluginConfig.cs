@@ -19,6 +19,9 @@ internal class PluginConfig
     [NonNullable]
     public virtual RuleSet Modcharts { get; set; } = new();
 
+    // ---- Replays (BeatLeader, ScoreSaber) ----
+    public virtual bool ApplyToReplays { get; set; } = true;
+
     // ---- Menu ----
     public virtual bool TintPlayButton { get; set; } = true;
     public virtual bool ShowTooltips { get; set; } = true;

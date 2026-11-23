@@ -18,13 +18,14 @@ internal class Plugin
     public Plugin(IpaLogger ipaLogger, IpaConfig ipaConfig, Zenjector zenjector, PluginMetadata pluginMetadata)
     {
         Log = ipaLogger;
-        Version = pluginMetadata.HVersion.ToString();
+        // Development builds are "0.3.2-a" in the manifest (valid semver) and shown as "0.3.2a".
+        Version = pluginMetadata.HVersion.ToString().Replace("-", string.Empty);
         zenjector.UseLogger(Log);
 
         var pluginConfig = ipaConfig.Generated<PluginConfig>();
         zenjector.Install<AppInstaller>(Location.App, pluginConfig);
         zenjector.Install<MenuInstaller>(Location.Menu);
 
-        Log.Info($"{pluginMetadata.Name} {pluginMetadata.HVersion} initialized.");
+        Log.Info($"{pluginMetadata.Name} {Version} initialized.");
     }
 }

@@ -29,6 +29,7 @@ internal class BeatSaberPlusLights : IDisposable
     private readonly FieldInfo? playerOptionsField;
     private readonly FieldInfo? overrideOptionField;
     private readonly FieldInfo? overrideIntensityField;
+    private readonly MethodInfo? setFromConfig;
     private readonly Harmony? harmony;
 
     public BeatSaberPlusLights()
@@ -51,14 +52,14 @@ internal class BeatSaberPlusLights : IDisposable
             overrideIntensityField = playerOptionsField?.FieldType.GetField("OverrideLightIntensity", InstanceFields);
             setTempLightIntensity = lightsPatchesType.GetMethod("SetTempLightIntensity", BindingFlags.Public | BindingFlags.Static);
 
-            var setFromConfig = lightsPatchesType.GetMethod("SetFromConfig", BindingFlags.Public | BindingFlags.Static);
+            setFromConfig = lightsPatchesType.GetMethod("SetFromConfig", BindingFlags.Public | BindingFlags.Static);
             if (config == null || enabledField == null || overrideOptionField == null || overrideIntensityField == null
                 || setTempLightIntensity == null || setFromConfig == null)
                 throw new MissingMemberException("GameTweaker light intensity members not found.");
 
             // GameTweaker loads its intensity at each level start; this runs straight after.
             harmony = new Harmony(HarmonyId);
-            harmony.Patch(setFromConfig, postfix: new HarmonyMethod(typeof(BeatSaberPlusLights), nameof(SetFromConfigPostfix)));
+            harmony.Patch(setFromConfig!, postfix: new HarmonyMethod(typeof(BeatSaberPlusLights), nameof(SetFromConfigPostfix)));
             IsAvailable = true;
         }
         catch (Exception ex)
@@ -86,6 +87,16 @@ internal class BeatSaberPlusLights : IDisposable
 
     /// <summary>Forces 100% brightness for level starts until turned off; GameTweaker's config is untouched.</summary>
     public void SetForceFullBrightness(bool force) => forceFullBrightness = force && IsAvailable;
+
+    /// <summary>
+    /// Reloads GameTweaker's brightness now. It only does that itself for launches through the menu's Play button,
+    /// so other launches (e.g. BeatLeader replays) would keep the previous map's value.
+    /// </summary>
+    public void Refresh()
+    {
+        if (IsAvailable && (bool)enabledField!.GetValue(config))
+            setFromConfig!.Invoke(null, null);
+    }
 
     public void Dispose() => harmony?.UnpatchSelf();
 

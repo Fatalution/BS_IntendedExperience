@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -22,6 +24,7 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
     private const string SettingsKey = "_settings";
     private const string GroupKey = "_intendedExperience";
     private const string GroupName = "Intended Experience";
+    private const string BeatLeaderNamespace = "BeatLeader.";
 
     // Heck's registry is static and outlives IE's app container, so rows are registered once per game session.
     private static readonly Dictionary<ChangeKind, PromptSetting> PromptSettings = new();
@@ -111,6 +114,15 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
         if (parameters is StartMultiplayerLevelParameters)
             return;
 
+        // BeatLeader opens this window before replays but never applies what's accepted in it, and an extra row
+        // makes it open the window more often (which runs into its back-button bug). IE applies its changes directly.
+        if (IsOpenedByBeatLeader())
+        {
+            prompt.Withdraw();
+            Plugin.Log.Info("BeatLeader replay: IE's changes are applied without the Settings Setter window.");
+            return;
+        }
+
         var level = parameters.BeatmapLevel;
         var key = parameters.BeatmapKey;
         if (!prompt.ShowsInMapWindow(level, key))
@@ -145,6 +157,11 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
         injectedSettings = settings;
         injectedKey = key;
     }
+
+    // BeatLeader calls Init itself from its replay navigation, so its code is on the stack.
+    private static bool IsOpenedByBeatLeader() =>
+        new StackTrace().GetFrames()?.Any(frame =>
+            frame.GetMethod()?.DeclaringType?.FullName?.StartsWith(BeatLeaderNamespace, StringComparison.Ordinal) == true) == true;
 
     private void RemoveInjectedChanges()
     {

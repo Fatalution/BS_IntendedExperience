@@ -5,6 +5,11 @@
     <!-- Hidden while the mod is disabled. GLS and modchart sections have the same toggles. -->
     <vertical id="settings-body" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
               child-control-width="true" child-expand-width="true">
+        <toggle-setting text="Apply to replays" value="apply-to-replays" apply-on-change="true"
+                        hover-hint="Applies IE's changes to BeatLeader and ScoreSaber replays too."/>
+
+        <!-- Gap before each section. -->
+        <horizontal pref-height="3"/>
         <horizontal pref-height="6">
             <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>
         </horizontal>
@@ -16,6 +21,7 @@
                         interactable="~settings-setter-available"
                         hover-hint="On maps without Settings Setter, shows IE's changes in a matching window after pressing Play. Requires Heck."/>
 
+        <horizontal pref-height="3"/>
         <horizontal pref-height="6">
             <text text="GLS Maps" font-size="4" color="#AAAAAA" word-wrapping="false"/>
         </horizontal>
@@ -27,6 +33,7 @@
                         interactable="~beat-saber-plus-available"
                         hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
 
+        <horizontal pref-height="3"/>
         <horizontal pref-height="6">
             <text text="Modcharts" font-size="4" color="#AAAAAA" word-wrapping="false"/>
         </horizontal>
@@ -38,6 +45,7 @@
                         interactable="~beat-saber-plus-available"
                         hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
 
+        <horizontal pref-height="3"/>
         <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">
             <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
                 <text text="~exclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>

@@ -3,26 +3,23 @@ using System.Linq;
 using HarmonyLib;
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
-using JetBrains.Annotations;
-using SiraUtil.Affinity;
 using Zenject;
 
 namespace IntendedExperience.Patches;
 
 /// <summary>
-/// Hands the level launch modified copies of the player's settings, so the overrides last for that map only
-/// and the saved settings are never touched.
+/// Hands the level setup modified copies of the player's settings, so the overrides last for that map only
+/// and the saved settings are never touched. Hooks the setup data itself, which every solo launch goes through,
+/// including ones that skip the menu's StartStandardLevel (e.g. BeatLeader replays).
 /// </summary>
-internal class LevelStartPatch : IInitializable, IDisposable, IAffinity
+internal class LevelStartPatch : IInitializable, IDisposable
 {
     private const string HarmonyId = "com.fatalution.IntendedExperience.LevelStart";
-
-    // Private in the game, so it can't be referenced with nameof.
-    private const string LevelFinishedMethodName = "HandleMainGameSceneDidFinish";
 
     // Read by the static Harmony patches.
     private static LevelStartPatch? active;
 
+    private readonly PluginConfig config;
     private readonly LaunchPlanner launchPlanner;
     private readonly SongCoreColors songCoreColors;
     private readonly BeatSaberPlusLights beatSaberPlusLights;
@@ -31,27 +28,29 @@ internal class LevelStartPatch : IInitializable, IDisposable, IAffinity
 
     private bool restoreEnvironmentColors;
 
-    public LevelStartPatch(LaunchPlanner launchPlanner, SongCoreColors songCoreColors,
+    public LevelStartPatch(PluginConfig config, LaunchPlanner launchPlanner, SongCoreColors songCoreColors,
         BeatSaberPlusLights beatSaberPlusLights, SettingsSetterPrompt settingsSetterPrompt)
     {
+        this.config = config;
         this.launchPlanner = launchPlanner;
         this.songCoreColors = songCoreColors;
         this.beatSaberPlusLights = beatSaberPlusLights;
         this.settingsSetterPrompt = settingsSetterPrompt;
     }
 
-    // Some game versions (e.g. 1.40.8) have more than one StartStandardLevel overload; all of them are patched.
+    // Some game versions (e.g. 1.40.8) have more than one Init overload; all of them are patched.
     // They share the parameters used here and don't call each other, so each launch runs this once.
     public void Initialize()
     {
         active = this;
-        var overloads = AccessTools.GetDeclaredMethods(typeof(MenuTransitionsHelper))
-            .Where(method => method.Name == nameof(MenuTransitionsHelper.StartStandardLevel));
+        var overloads = AccessTools.GetDeclaredMethods(typeof(StandardLevelScenesTransitionSetupDataSO))
+            .Where(method => method.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init));
         foreach (var overload in overloads)
         {
             harmony.Patch(overload,
-                prefix: new HarmonyMethod(typeof(LevelStartPatch), nameof(StartLevelPrefix)),
-                finalizer: new HarmonyMethod(typeof(LevelStartPatch), nameof(StartLevelFinalizer)));
+                prefix: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitPrefix)),
+                postfix: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitPostfix)),
+                finalizer: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitFinalizer)));
         }
     }
 
@@ -62,22 +61,46 @@ internal class LevelStartPatch : IInitializable, IDisposable, IAffinity
             active = null;
     }
 
-    private static void StartLevelPrefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
+    private static void InitPrefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
         ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings) =>
         active?.ApplyPlan(beatmapKey, beatmapLevel, ref playerOverrideLightshowColors, ref playerSpecificSettings);
 
-    private static void StartLevelFinalizer() => active?.RestoreEnvironmentColors();
+    // The setup data is reused between launches, so the handler is re-added rather than stacked.
+    private static void InitPostfix(StandardLevelScenesTransitionSetupDataSO __instance)
+    {
+        __instance.didFinishEvent -= HandleLevelFinished;
+        __instance.didFinishEvent += HandleLevelFinished;
+    }
+
+    private static void InitFinalizer() => active?.RestoreEnvironmentColors();
+
+    // A restart replays the same setup without calling Init again, so the brightness override stays for it.
+    private static void HandleLevelFinished(StandardLevelScenesTransitionSetupDataSO setupData,
+        LevelCompletionResults results)
+    {
+        if (results.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
+            active?.beatSaberPlusLights.SetForceFullBrightness(false);
+    }
 
     private void ApplyPlan(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
         ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings)
     {
-        var plan = launchPlanner.Plan(beatmapLevel, beatmapKey, playerSpecificSettings, playerOverrideLightshowColors);
+        var planned = launchPlanner.Plan(beatmapLevel, beatmapKey, playerSpecificSettings, playerOverrideLightshowColors);
 
         // If the changes were shown in the Settings Setter window, only what the player accepted applies.
-        plan = settingsSetterPrompt.ApplyDecision(beatmapKey, plan);
+        var plan = settingsSetterPrompt.ApplyDecision(beatmapKey, planned);
+        if (plan != planned)
+            Plugin.Log.Info($"Settings Setter answer for '{beatmapLevel.songName}': applying {plan} instead of {planned}");
+
+        if (!plan.IsEmpty && !config.ApplyToReplays && ReplayLaunches.IsCurrentLaunchReplay())
+        {
+            plan = plan.Only(_ => false);
+            Plugin.Log.Info($"Replay of '{beatmapLevel.songName}': IE is turned off for replays.");
+        }
 
         // Set on every launch so a previous map's state never carries over.
         beatSaberPlusLights.SetForceFullBrightness(plan.SetFullBrightness);
+        beatSaberPlusLights.Refresh();
 
         if (plan.IsEmpty)
             return;
@@ -109,15 +132,5 @@ internal class LevelStartPatch : IInitializable, IDisposable, IAffinity
 
         songCoreColors.SetEnvironmentColorsEnabled(false);
         restoreEnvironmentColors = false;
-    }
-
-    // A restart replays the same launch without StartStandardLevel, so the brightness override stays for it.
-    [UsedImplicitly]
-    [AffinityPatch(typeof(MenuTransitionsHelper), LevelFinishedMethodName)]
-    [AffinityPrefix]
-    private void LevelFinishedPrefix(LevelCompletionResults levelCompletionResults)
-    {
-        if (levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
-            beatSaberPlusLights.SetForceFullBrightness(false);
     }
 }

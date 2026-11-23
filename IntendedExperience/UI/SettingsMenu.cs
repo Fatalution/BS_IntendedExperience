@@ -94,6 +94,10 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("show-in-settings-setter")]
     public bool ShowInSettingsSetter { get => config.ShowInSettingsSetter; set => config.ShowInSettingsSetter = value; }
 
+    // ---- Replays ----
+    [UIValue("apply-to-replays")]
+    public bool ApplyToReplays { get => config.ApplyToReplays; set => config.ApplyToReplays = value; }
+
     // ---- Optional mods (grey out their toggles when missing) ----
     [UIValue("beat-saber-plus-available")]
     public bool BeatSaberPlusAvailable => beatSaberPlusLights.IsAvailable;

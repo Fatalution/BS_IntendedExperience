@@ -49,6 +49,13 @@ internal class SettingsSetterPrompt
 
     public void Accept(ChangeKind kind) => accepted.Add(kind);
 
+    /// <summary>Drops a pending offer, so the next launch applies IE's changes without asking.</summary>
+    public void Withdraw()
+    {
+        offeredKey = null;
+        accepted.Clear();
+    }
+
     /// <summary>
     /// If the window offered this launch's changes, keeps only the ones the player accepted
     /// (none when declined). Launches that never showed the window are left as they are.
