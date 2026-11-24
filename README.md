@@ -133,4 +133,4 @@ This mod was written with help from AI (Claude). I designed, tested and maintain
 
 ## License
 
-[MIT](LICENSE) © Fatalution
+[GPL-3.0](LICENSE) © Fatalution
