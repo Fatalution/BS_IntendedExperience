@@ -2,13 +2,35 @@
     <toggle-setting text="Enabled" value="enabled" apply-on-change="true"
                     hover-hint="Turns Intended Experience on or off."/>
 
-    <!-- Hidden while the mod is disabled. GLS and modchart sections have the same toggles. -->
+    <!-- Hidden while the mod is disabled. -->
     <vertical id="settings-body" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
               child-control-width="true" child-expand-width="true">
+        <!-- Gap before each section. One set of toggles for the map type picked above them; the colors toggle
+             is last because it's hidden for Chroma maps, which color their own lights. -->
+        <horizontal pref-height="3"/>
+        <horizontal pref-height="6">
+            <text text="Map Types" font-size="4" color="#AAAAAA" word-wrapping="false"/>
+        </horizontal>
+        <horizontal pref-height="8" child-control-width="true" child-expand-width="true">
+            <text-segments contents="categories" select-cell="select-category"/>
+        </horizontal>
+        <toggle-setting text="Enable All Effects" value="force-all-effects" bind-value="true" apply-on-change="true"
+                        hover-hint="Sets environment effects to All Effects."/>
+        <toggle-setting text="Use Map Environment" value="force-map-environment" bind-value="true" apply-on-change="true"
+                        hover-hint="Turns off your environment override, so the map plays in the environment it was made for."/>
+        <toggle-setting text="Set Effects Brightness to 100%" value="force-full-brightness" bind-value="true" apply-on-change="true"
+                        interactable="~beat-saber-plus-available"
+                        hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
+        <toggle-setting id="colors-toggle" text="Use Intended Colors" value="force-intended-colors" bind-value="true" apply-on-change="true"
+                        hover-hint="Sets color override to Notes Only and uses the correct color scheme for the environment, or the map's own SongCore color scheme if it has one."/>
+
+        <horizontal pref-height="3"/>
         <toggle-setting text="Apply to replays" value="apply-to-replays" apply-on-change="true"
                         hover-hint="Applies IE's changes to BeatLeader and ScoreSaber replays too."/>
+        <toggle-setting text="Apply in Multiplayer+" value="apply-in-multiplayer-plus" apply-on-change="true"
+                        interactable="~multiplayer-plus-available"
+                        hover-hint="In Multiplayer+ lobbies, applies the map's Settings Setter and IE's changes without asking. Requires BeatSaberPlus Multiplayer+."/>
 
-        <!-- Gap before each section. -->
         <horizontal pref-height="3"/>
         <horizontal pref-height="6">
             <text text="Menu" font-size="4" color="#AAAAAA" word-wrapping="false"/>
@@ -20,30 +42,6 @@
         <toggle-setting text="Show changes in Settings Setter" value="show-in-settings-setter" apply-on-change="true"
                         interactable="~settings-setter-available"
                         hover-hint="On maps without Settings Setter, shows IE's changes in a matching window after pressing Play. Requires Heck."/>
-
-        <horizontal pref-height="3"/>
-        <horizontal pref-height="6">
-            <text text="GLS Maps" font-size="4" color="#AAAAAA" word-wrapping="false"/>
-        </horizontal>
-        <toggle-setting text="Enable All Effects" value="gls-force-all-effects" apply-on-change="true"
-                        hover-hint="Sets environment effects to All Effects."/>
-        <toggle-setting text="Use Intended Colors" value="gls-force-intended-colors" apply-on-change="true"
-                        hover-hint="Sets color override to Notes Only and uses the correct color scheme for the environment, or the map's own SongCore color scheme if it has one."/>
-        <toggle-setting text="Set Effects Brightness to 100%" value="gls-force-full-brightness" apply-on-change="true"
-                        interactable="~beat-saber-plus-available"
-                        hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
-
-        <horizontal pref-height="3"/>
-        <horizontal pref-height="6">
-            <text text="Modcharts" font-size="4" color="#AAAAAA" word-wrapping="false"/>
-        </horizontal>
-        <toggle-setting text="Enable All Effects" value="modcharts-force-all-effects" apply-on-change="true"
-                        hover-hint="Sets environment effects to All Effects."/>
-        <toggle-setting text="Use Intended Colors" value="modcharts-force-intended-colors" apply-on-change="true"
-                        hover-hint="Sets color override to Notes Only and uses the correct color scheme for the environment, or the map's own SongCore color scheme if it has one."/>
-        <toggle-setting text="Set Effects Brightness to 100%" value="modcharts-force-full-brightness" apply-on-change="true"
-                        interactable="~beat-saber-plus-available"
-                        hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
 
         <horizontal pref-height="3"/>
         <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">

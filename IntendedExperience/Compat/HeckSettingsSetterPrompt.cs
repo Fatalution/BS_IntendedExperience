@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using CustomJSONData;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -24,7 +22,6 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
     private const string SettingsKey = "_settings";
     private const string GroupKey = "_intendedExperience";
     private const string GroupName = "Intended Experience";
-    private const string BeatLeaderNamespace = "BeatLeader.";
 
     // Heck's registry is static and outlives IE's app container, so rows are registered once per game session.
     private static readonly Dictionary<ChangeKind, PromptSetting> PromptSettings = new();
@@ -40,7 +37,7 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
     private CustomData? injectedRoot;
     private CustomData? injectedSettings;
     private bool createdSettings;
-    private BeatmapKey injectedKey;
+    private MapDifficulty injectedMap;
 
     public HeckSettingsSetterPrompt(LaunchPlanner launchPlanner, SettingsSetterPrompt prompt)
     {
@@ -80,8 +77,19 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
     }
 
     // Only custom maps keep their custom data between calls, so only they can carry the injected entries.
-    private static bool HasCustomData(BeatmapLevel level, BeatmapKey key) =>
-        level.GetDifficultyBeatmapData(key.beatmapCharacteristic, key.difficulty) is CustomBeatmapBasicData;
+    private static bool HasCustomData(MapDifficulty map) =>
+#if GAME_1_29
+        map.Beatmap is CustomDifficultyBeatmap { beatmapSaveData: Version3CustomBeatmapSaveData };
+#else
+        map.Level.GetDifficultyBeatmapData(map.Key.beatmapCharacteristic, map.Key.difficulty) is CustomBeatmapBasicData;
+#endif
+
+    private static CustomData GetCustomData(MapDifficulty map) =>
+#if GAME_1_29
+        map.Beatmap.GetBeatmapCustomData();
+#else
+        map.Level.GetBeatmapCustomData(map.Key);
+#endif
 
     private static void RegisterSettings()
     {
@@ -103,7 +111,7 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
     private static void InitPostfix(bool __result)
     {
         if (active is { injectedRoot: not null } prompter && __result)
-            prompter.prompt.Offer(prompter.injectedKey);
+            prompter.prompt.Offer(prompter.injectedMap);
     }
 
     private static void InitFinalizer() => active?.RemoveInjectedChanges();
@@ -116,25 +124,28 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
 
         // BeatLeader opens this window before replays but never applies what's accepted in it, and an extra row
         // makes it open the window more often (which runs into its back-button bug). IE applies its changes directly.
-        if (IsOpenedByBeatLeader())
+        if (LaunchCallers.IsBeatLeader())
         {
-            prompt.Withdraw();
             Plugin.Log.Info("BeatLeader replay: IE's changes are applied without the Settings Setter window.");
             return;
         }
 
-        var level = parameters.BeatmapLevel;
-        var key = parameters.BeatmapKey;
-        if (!prompt.ShowsInMapWindow(level, key))
+        // Multiplayer+ launches run the Settings Setter without its window and apply IE's changes directly.
+        if (LaunchCallers.IsMultiplayerPlus())
+            return;
+
+        var map = parameters.Map();
+        if (!prompt.ShowsInMapWindow(map))
             return;
 
         var changes = launchPlanner
-            .Plan(level, key, parameters.PlayerSpecificSettings, parameters.PlayerOverrideLightshowColors)
+            .Plan(map, parameters.PlayerSpecificSettings, parameters.OverridesLightColors(),
+                parameters.OverrideEnvironmentSettings)
             .Changes();
         if (changes.Count == 0)
             return;
 
-        var root = level.GetBeatmapCustomData(in key);
+        var root = GetCustomData(map);
         var settings = root.Get<CustomData>(SettingsKey);
         createdSettings = settings == null;
         settings ??= new CustomData();
@@ -155,13 +166,8 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
 
         injectedRoot = root;
         injectedSettings = settings;
-        injectedKey = key;
+        injectedMap = map;
     }
-
-    // BeatLeader calls Init itself from its replay navigation, so its code is on the stack.
-    private static bool IsOpenedByBeatLeader() =>
-        new StackTrace().GetFrames()?.Any(frame =>
-            frame.GetMethod()?.DeclaringType?.FullName?.StartsWith(BeatLeaderNamespace, StringComparison.Ordinal) == true) == true;
 
     private void RemoveInjectedChanges()
     {

@@ -53,7 +53,7 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     [UIAction("toggle-exclusion")]
     private void ToggleExclusion() => launchPreview.SetExcluded(!launchPreview.Excluded);
 
-    // Only shown for maps the mod can affect (GLS maps and modcharts).
+    // Only shown for maps the mod can affect (GLS maps, Chroma maps and modcharts).
     private void Refresh()
     {
         if (excludeButton != null)

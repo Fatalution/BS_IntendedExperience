@@ -41,10 +41,10 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
     {
         get
         {
-            if (launchPreview.Level == null)
+            if (launchPreview.Map == null)
                 return "No map selected.";
             if (!Qualifies)
-                return "Not a GLS map or modchart: your own settings will be used.";
+                return "Not a GLS map, Chroma map or modchart: your own settings will be used.";
             if (Excluded)
                 return "Excluded: your own settings will be used.";
 

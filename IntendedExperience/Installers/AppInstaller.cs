@@ -35,6 +35,9 @@ internal class AppInstaller : Installer
 
     // Kept separate so Heck's types are only loaded when Heck is installed.
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void BindHeckPrompt() =>
+    private void BindHeckPrompt()
+    {
         Container.BindInterfacesAndSelfTo<HeckSettingsSetterPrompt>().AsSingle();
+        Container.BindInterfacesTo<HeckSettingsSetterAutoApply>().AsSingle();
+    }
 }

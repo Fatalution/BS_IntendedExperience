@@ -20,8 +20,9 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     private const string SettingsSetterHint =
         "Intended Experience will change settings for this map. You'll see them in the Settings Setter window.";
 
-    private static readonly MethodInfo ResampleMethod =
-        typeof(ButtonStaticAnimations).GetMethod(ResampleMethodName, BindingFlags.NonPublic | BindingFlags.Instance)!;
+    // Private in newer game versions, public in 1.29.1.
+    private static readonly MethodInfo ResampleMethod = typeof(ButtonStaticAnimations).GetMethod(ResampleMethodName,
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private readonly PluginConfig config;
     private readonly LaunchPreview launchPreview;

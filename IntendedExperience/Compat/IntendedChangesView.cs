@@ -63,19 +63,19 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
         if (parameters is StartMultiplayerLevelParameters)
             return false;
 
-        var level = parameters.BeatmapLevel;
-        var key = parameters.BeatmapKey;
-        if (!prompt.ShowsOwnWindow(level, key))
+        var map = parameters.Map();
+        if (!prompt.ShowsOwnWindow(map))
             return false;
 
         changes.Clear();
         changes.AddRange(launchPlanner
-            .Plan(level, key, parameters.PlayerSpecificSettings, parameters.PlayerOverrideLightshowColors)
+            .Plan(map, parameters.PlayerSpecificSettings, parameters.OverridesLightColors(),
+                parameters.OverrideEnvironmentSettings)
             .Changes());
         if (changes.Count == 0)
             return false;
 
-        prompt.Offer(key);
+        prompt.Offer(map);
 
         // Like Heck, parse the rows panel fresh for every map so it lays out correctly.
         if (contentObject != null)

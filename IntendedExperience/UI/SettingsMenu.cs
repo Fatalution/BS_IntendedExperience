@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Settings;
+using HMUI;
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
+using IPA.Loader;
 using JetBrains.Annotations;
 using SongCore;
 using UnityEngine;
@@ -17,10 +20,23 @@ namespace IntendedExperience.UI;
 /// <summary>Settings -> Mod Settings page.</summary>
 internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChanged
 {
+#if GAME_1_29
+    // BSML 1.6's mod list is too narrow for the name with a space.
+    private const string MenuName = "IntendedExperience";
+#else
     private const string MenuName = "Intended Experience";
+#endif
     private const string ResourcePath = "IntendedExperience.UI.SettingsMenu.bsml";
     private const string RowResourcePath = "IntendedExperience.UI.ExcludedMapRow.bsml";
     private const string CustomLevelPrefix = "custom_level_";
+
+    // ---- Map type switch ----
+    private const string MultiplayerPlusPluginId = "BeatSaberPlus_Multiplayer";
+    private static readonly string[] CategoryNames = { "GLS Maps", "Modcharts", "Chroma Maps" };
+    private static readonly string[] RuleProperties =
+    {
+        nameof(ForceAllEffects), nameof(ForceIntendedColors), nameof(ForceMapEnvironment), nameof(ForceFullBrightness)
+    };
 
     private readonly BSMLSettings bsmlSettings;
     private readonly BSMLParser bsmlParser;
@@ -31,10 +47,14 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly SettingsSetterPrompt settingsSetterPrompt;
     private readonly string rowTemplate;
 
+    private MapCategory selectedCategory = MapCategory.Gls;
+
     [UIObject("settings-body")]
     private readonly GameObject settingsBody = null!;
     [UIObject("excluded-rows")]
     private readonly GameObject excludedRows = null!;
+    [UIObject("colors-toggle")]
+    private readonly GameObject colorsToggle = null!;
 
     public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
         PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights,
@@ -64,25 +84,23 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         }
     }
 
-    // ---- GLS rules ----
-    [UIValue("gls-force-all-effects")]
-    public bool GlsForceAllEffects { get => config.Gls.ForceAllEffects; set => config.Gls.ForceAllEffects = value; }
+    // ---- Rules of the map type picked in the switch ----
+    [UIValue("categories")]
+    public List<object> Categories => CategoryNames.Cast<object>().ToList();
 
-    [UIValue("gls-force-intended-colors")]
-    public bool GlsForceIntendedColors { get => config.Gls.ForceIntendedColors; set => config.Gls.ForceIntendedColors = value; }
+    [UIValue("force-all-effects")]
+    public bool ForceAllEffects { get => SelectedRules.ForceAllEffects; set => SelectedRules.ForceAllEffects = value; }
 
-    [UIValue("gls-force-full-brightness")]
-    public bool GlsForceFullBrightness { get => config.Gls.ForceFullBrightness; set => config.Gls.ForceFullBrightness = value; }
+    [UIValue("force-intended-colors")]
+    public bool ForceIntendedColors { get => SelectedRules.ForceIntendedColors; set => SelectedRules.ForceIntendedColors = value; }
 
-    // ---- Modchart rules ----
-    [UIValue("modcharts-force-all-effects")]
-    public bool ModchartsForceAllEffects { get => config.Modcharts.ForceAllEffects; set => config.Modcharts.ForceAllEffects = value; }
+    [UIValue("force-map-environment")]
+    public bool ForceMapEnvironment { get => SelectedRules.ForceMapEnvironment; set => SelectedRules.ForceMapEnvironment = value; }
 
-    [UIValue("modcharts-force-intended-colors")]
-    public bool ModchartsForceIntendedColors { get => config.Modcharts.ForceIntendedColors; set => config.Modcharts.ForceIntendedColors = value; }
+    [UIValue("force-full-brightness")]
+    public bool ForceFullBrightness { get => SelectedRules.ForceFullBrightness; set => SelectedRules.ForceFullBrightness = value; }
 
-    [UIValue("modcharts-force-full-brightness")]
-    public bool ModchartsForceFullBrightness { get => config.Modcharts.ForceFullBrightness; set => config.Modcharts.ForceFullBrightness = value; }
+    private RuleSet SelectedRules => config.RulesFor(selectedCategory);
 
     // ---- Menu ----
     [UIValue("tint-play-button")]
@@ -94,9 +112,12 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("show-in-settings-setter")]
     public bool ShowInSettingsSetter { get => config.ShowInSettingsSetter; set => config.ShowInSettingsSetter = value; }
 
-    // ---- Replays ----
+    // ---- Other launchers ----
     [UIValue("apply-to-replays")]
     public bool ApplyToReplays { get => config.ApplyToReplays; set => config.ApplyToReplays = value; }
+
+    [UIValue("apply-in-multiplayer-plus")]
+    public bool ApplyInMultiplayerPlus { get => config.ApplyInMultiplayerPlus; set => config.ApplyInMultiplayerPlus = value; }
 
     // ---- Optional mods (grey out their toggles when missing) ----
     [UIValue("beat-saber-plus-available")]
@@ -104,6 +125,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     [UIValue("settings-setter-available")]
     public bool SettingsSetterAvailable => settingsSetterPrompt.IsAvailable;
+
+    [UIValue("multiplayer-plus-available")]
+    public bool MultiplayerPlusAvailable => PluginManager.GetPluginFromId(MultiplayerPlusPluginId) != null;
 
     // ---- Exclusions ----
     [UIValue("exclusions-text")]
@@ -134,6 +158,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private void PostParse()
     {
         UpdateBodyVisibility();
+        UpdateColorsToggle();
         OnExclusionsChanged();
     }
 
@@ -144,12 +169,42 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
             settingsBody.SetActive(config.Enabled);
     }
 
+    // The switch's cells are in MapCategory order; the toggles re-read the picked type's rules.
+    [UsedImplicitly]
+    [UIAction("select-category")]
+    private void SelectCategory(SegmentedControl segmentedControl, int index)
+    {
+        selectedCategory = (MapCategory)index;
+        foreach (string property in RuleProperties)
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        UpdateColorsToggle();
+    }
+
+    // Chroma maps color their own lights. The toggle is made invisible rather than removed, so the list keeps its height.
+    private void UpdateColorsToggle()
+    {
+        if (colorsToggle == null)
+            return;
+
+        bool shown = selectedCategory != MapCategory.Chroma;
+        var canvasGroup = colorsToggle.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = colorsToggle.AddComponent<CanvasGroup>();
+        canvasGroup.alpha = shown ? 1f : 0f;
+        canvasGroup.interactable = shown;
+        canvasGroup.blocksRaycasts = shown;
+    }
+
     [UsedImplicitly]
     [UIAction("clear-exclusions")]
     private void ClearExclusions() => mapExclusions.Clear();
 
     // Custom map names are only known once SongCore has loaded the songs.
+#if GAME_1_29
+    private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels) => OnExclusionsChanged();
+#else
     private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, BeatmapLevel> levels) => OnExclusionsChanged();
+#endif
 
     private void OnExclusionsChanged()
     {
@@ -179,16 +234,21 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // Maps that aren't loaded (deleted, or SongCore still loading) fall back to their hash.
     private string DisplayName(string levelId)
     {
-#if GAME_1_40
+#if GAME_1_29
+        var level = beatmapLevelsModel.GetLevelPreviewForLevelId(levelId);
+        string? mappers = level?.levelAuthorName;
+#elif GAME_1_40
         var level = beatmapLevelsModel.GetBeatmapLevel(levelId);
+        string? mappers = level == null ? null : string.Join(", ", level.allMappers);
 #else
         var level = beatmapLevelsModel.GetBeatmapLevel(levelId, true);
+        string? mappers = level == null ? null : string.Join(", ", level.allMappers);
 #endif
         if (level == null)
             return $"<color=#808080>Unknown map ({levelId.Replace(CustomLevelPrefix, string.Empty)})</color>";
 
-        string mappers = level.allMappers.Length > 0 ? $" <color=#808080>[{string.Join(", ", level.allMappers)}]</color>" : string.Empty;
-        return $"{level.songName} <size=80%>- {level.songAuthorName}</size>{mappers}";
+        string mapperText = string.IsNullOrEmpty(mappers) ? string.Empty : $" <color=#808080>[{mappers}]</color>";
+        return $"{level.songName} <size=80%>- {level.songAuthorName}</size>{mapperText}";
     }
 
     /// <summary>Host for one excluded-map row.</summary>

@@ -3,6 +3,9 @@ using System.Linq;
 using HarmonyLib;
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
+#if GAME_1_29
+using IPA.Utilities;
+#endif
 using Zenject;
 
 namespace IntendedExperience.Patches;
@@ -40,6 +43,7 @@ internal class LevelStartPatch : IInitializable, IDisposable
 
     // Some game versions (e.g. 1.40.8) have more than one Init overload; all of them are patched.
     // They share the parameters used here and don't call each other, so each launch runs this once.
+    // The prefix runs first so mods that patch Init too (SongCore's map colors on 1.29.1) see IE's changes.
     public void Initialize()
     {
         active = this;
@@ -48,7 +52,7 @@ internal class LevelStartPatch : IInitializable, IDisposable
         foreach (var overload in overloads)
         {
             harmony.Patch(overload,
-                prefix: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitPrefix)),
+                prefix: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitPrefix)) { priority = Priority.First },
                 postfix: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitPostfix)),
                 finalizer: new HarmonyMethod(typeof(LevelStartPatch), nameof(InitFinalizer)));
         }
@@ -61,9 +65,47 @@ internal class LevelStartPatch : IInitializable, IDisposable
             active = null;
     }
 
+#if GAME_1_29
+    // Any color override reaches the lights on 1.29.1. Notes Only is rebuilt as the player's scheme
+    // with the environment's own light colors.
+    private static void InitPrefix(IDifficultyBeatmap difficultyBeatmap,
+        ref OverrideEnvironmentSettings? overrideEnvironmentSettings, ref ColorScheme? overrideColorScheme,
+        ref GameplayModifiers gameplayModifiers, ref PlayerSpecificSettings playerSpecificSettings)
+    {
+        if (active == null)
+            return;
+
+        var settings = new LaunchSettings(playerSpecificSettings, gameplayModifiers, overrideEnvironmentSettings,
+            overrideColorScheme);
+        var plan = active.ApplyPlan(new MapDifficulty(difficultyBeatmap), settings);
+
+        playerSpecificSettings = settings.PlayerSpecificSettings;
+        gameplayModifiers = settings.GameplayModifiers;
+        overrideEnvironmentSettings = settings.OverrideEnvironmentSettings;
+        overrideColorScheme = plan.UseNotesOnlyColors
+            ? WithEnvironmentLights(settings.OverrideColorScheme!, difficultyBeatmap, settings.OverrideEnvironmentSettings)
+            : settings.OverrideColorScheme;
+    }
+#else
     private static void InitPrefix(ref BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
-        ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings) =>
-        active?.ApplyPlan(beatmapKey, beatmapLevel, ref playerOverrideLightshowColors, ref playerSpecificSettings);
+        ref OverrideEnvironmentSettings? overrideEnvironmentSettings, ref ColorScheme? playerOverrideColorScheme,
+        ref bool playerOverrideLightshowColors, ref GameplayModifiers gameplayModifiers,
+        ref PlayerSpecificSettings playerSpecificSettings)
+    {
+        if (active == null)
+            return;
+
+        var settings = new LaunchSettings(playerSpecificSettings, gameplayModifiers, overrideEnvironmentSettings,
+            playerOverrideColorScheme, playerOverrideLightshowColors);
+        var plan = active.ApplyPlan(new MapDifficulty(beatmapLevel, beatmapKey), settings);
+
+        playerSpecificSettings = settings.PlayerSpecificSettings;
+        gameplayModifiers = settings.GameplayModifiers;
+        overrideEnvironmentSettings = settings.OverrideEnvironmentSettings;
+        playerOverrideColorScheme = settings.OverrideColorScheme;
+        playerOverrideLightshowColors = settings.OverrideLightshowColors && !plan.UseNotesOnlyColors;
+    }
+#endif
 
     // The setup data is reused between launches, so the handler is re-added rather than stacked.
     private static void InitPostfix(StandardLevelScenesTransitionSetupDataSO __instance)
@@ -74,28 +116,55 @@ internal class LevelStartPatch : IInitializable, IDisposable
 
     private static void InitFinalizer() => active?.RestoreEnvironmentColors();
 
-    // A restart replays the same setup without calling Init again, so the brightness override stays for it.
+    // A restart replays the same setup without calling Init again, so the overrides stay for it.
     private static void HandleLevelFinished(StandardLevelScenesTransitionSetupDataSO setupData,
         LevelCompletionResults results)
     {
-        if (results.levelEndAction != LevelCompletionResults.LevelEndAction.Restart)
-            active?.beatSaberPlusLights.SetForceFullBrightness(false);
+        if (active == null || results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
+            return;
+
+        active.beatSaberPlusLights.SetForceFullBrightness(false);
+        active.settingsSetterPrompt.RestoreAppliedWithoutWindow();
     }
 
-    private void ApplyPlan(BeatmapKey beatmapKey, BeatmapLevel beatmapLevel,
-        ref bool playerOverrideLightshowColors, ref PlayerSpecificSettings playerSpecificSettings)
+    /// <summary>
+    /// Applies the plan's effects, environment, map colors and brightness to the launch settings;
+    /// the caller applies the color override.
+    /// </summary>
+    private LaunchPlan ApplyPlan(MapDifficulty map, LaunchSettings settings)
     {
-        var planned = launchPlanner.Plan(beatmapLevel, beatmapKey, playerSpecificSettings, playerOverrideLightshowColors);
+        // Heck applies the map's Settings Setter, and asks about IE's changes, only in its own play flow.
+        // Other launches get IE's changes without asking, and an answer left over from an earlier window
+        // doesn't apply to them. Multiplayer+ shows no window, so its launches get the map's Settings Setter
+        // applied here as if accepted; other launches (replays) get IE's changes for its settings instead.
+        bool throughHeck = LaunchCallers.IsHeckPlayView();
+        bool multiplayerPlus = !throughHeck && LaunchCallers.IsMultiplayerPlus();
+        bool settingsSetterApplied = throughHeck;
+        if (!throughHeck)
+        {
+            settingsSetterPrompt.Withdraw();
+            if (multiplayerPlus && config.Enabled && config.ApplyInMultiplayerPlus)
+                settingsSetterApplied = settingsSetterPrompt.ApplyWithoutWindow(map, settings);
+        }
+
+        var planned = launchPlanner.Plan(map, settings.PlayerSpecificSettings, settings.OverridesLightColors,
+            settings.OverrideEnvironmentSettings, settingsSetterApplied);
 
         // If the changes were shown in the Settings Setter window, only what the player accepted applies.
-        var plan = settingsSetterPrompt.ApplyDecision(beatmapKey, planned);
+        var plan = settingsSetterPrompt.ApplyDecision(map, planned);
         if (plan != planned)
-            Plugin.Log.Info($"Settings Setter answer for '{beatmapLevel.songName}': applying {plan} instead of {planned}");
+            Plugin.Log.Info($"Settings Setter answer for '{map.SongName}': applying {plan} instead of {planned}");
 
-        if (!plan.IsEmpty && !config.ApplyToReplays && ReplayLaunches.IsCurrentLaunchReplay())
+        if (!plan.IsEmpty && !config.ApplyToReplays && LaunchCallers.IsReplay())
         {
             plan = plan.Only(_ => false);
-            Plugin.Log.Info($"Replay of '{beatmapLevel.songName}': IE is turned off for replays.");
+            Plugin.Log.Info($"Replay of '{map.SongName}': IE is turned off for replays.");
+        }
+
+        if (!plan.IsEmpty && !config.ApplyInMultiplayerPlus && multiplayerPlus)
+        {
+            plan = plan.Only(_ => false);
+            Plugin.Log.Info($"Multiplayer+ launch of '{map.SongName}': IE is turned off for Multiplayer+.");
         }
 
         // Set on every launch so a previous map's state never carries over.
@@ -103,17 +172,18 @@ internal class LevelStartPatch : IInitializable, IDisposable
         beatSaberPlusLights.Refresh();
 
         if (plan.IsEmpty)
-            return;
+            return plan;
 
         if (plan.EnableAllEffects)
         {
-            playerSpecificSettings = playerSpecificSettings.CopyWith(
+            settings.PlayerSpecificSettings = settings.PlayerSpecificSettings.CopyWith(
                 environmentEffectsFilterDefaultPreset: EnvironmentEffectsFilterPreset.AllEffects,
                 environmentEffectsFilterExpertPlusPreset: EnvironmentEffectsFilterPreset.AllEffects);
         }
 
-        if (plan.UseNotesOnlyColors)
-            playerOverrideLightshowColors = false;
+        // A new settings object has overrides off; the player's own one is left as it is.
+        if (plan.UseMapEnvironment)
+            settings.OverrideEnvironmentSettings = new OverrideEnvironmentSettings();
 
         // SongCore reads this while the level is set up inside this call; the finalizer turns it back off.
         if (plan.EnableMapEffectColors)
@@ -122,8 +192,34 @@ internal class LevelStartPatch : IInitializable, IDisposable
             restoreEnvironmentColors = true;
         }
 
-        Plugin.Log.Info($"Applying intended settings to '{beatmapLevel.songName}': {plan}");
+        Plugin.Log.Info($"Applying intended settings to '{map.SongName}': {plan}");
+        return plan;
     }
+
+#if GAME_1_29
+    /// <summary>The player's scheme with the light colors of the environment the level will use.</summary>
+    private static ColorScheme WithEnvironmentLights(ColorScheme playerScheme, IDifficultyBeatmap beatmap,
+        OverrideEnvironmentSettings? overrideEnvironmentSettings)
+    {
+        // The map's environment, or the player's override for that environment type (as the game picks it).
+        var environment = BeatmapEnvironmentHelper.GetEnvironmentInfo(beatmap);
+        var overridden = overrideEnvironmentSettings is { overrideEnvironments: true }
+            ? overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environment.environmentType)
+            : null;
+        if (overridden != null)
+            environment = overridden;
+
+        var lights = new ColorScheme(environment.colorScheme);
+        var scheme = new ColorScheme(playerScheme, playerScheme.saberAColor, playerScheme.saberBColor,
+            lights.environmentColor0, lights.environmentColor1, lights.supportsEnvironmentColorBoost,
+            lights.environmentColor0Boost, lights.environmentColor1Boost, playerScheme.obstaclesColor);
+
+        // The constructor sets the white lights to plain white.
+        ReflectionUtil.SetField(scheme, "_environmentColorW", lights.environmentColorW);
+        ReflectionUtil.SetField(scheme, "_environmentColorWBoost", lights.environmentColorWBoost);
+        return scheme;
+    }
+#endif
 
     private void RestoreEnvironmentColors()
     {

@@ -2,7 +2,7 @@
 <!-- This file contains project properties used by the build. -->
 <Project>
 
-  <!-- Game version to build for: 1.44.1 (default) or 1.40.8, e.g. `dotnet build -p:TargetGame=1.40.8`. -->
+  <!-- Game version to build for: 1.44.1 (default), 1.40.8 or 1.29.1, e.g. `dotnet build -p:TargetGame=1.40.8`. -->
   <PropertyGroup>
     <TargetGame Condition="'$(TargetGame)' == ''">1.44.1</TargetGame>
   </PropertyGroup>
@@ -13,7 +13,7 @@
     <PluginName>IntendedExperience</PluginName>
     <Authors>Fatalution</Authors>
     <!-- Development builds add a letter as a prerelease tag (0.3.2-a, shown as 0.3.2a); releases drop it. -->
-    <Version>0.3.2</Version>
+    <Version>0.3.3-f</Version>
     <GameVersion>$(TargetGame)</GameVersion>
     <Description>Shows GLS (v3+) lightshows and modcharts as the mapper made them by applying the right effects and color settings for that map only.</Description>
     <!--<PluginIcon></PluginIcon>-->
@@ -36,12 +36,22 @@
     <DependsOn Include="SiraUtil" Version="^3.2.1"/>
     <DependsOn Include="SongCore" Version="^3.15.3"/>
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetGame)' == '1.29.1'">
+    <DependsOn Include="BeatSaberMarkupLanguage" Version="^1.6.10"/>
+    <DependsOn Include="SiraUtil" Version="^3.1.2"/>
+    <DependsOn Include="SongCore" Version="^3.11.1"/>
+  </ItemGroup>
 
-  <!-- Per-version code differences and separate build folders, so the two builds never mix. -->
+  <!-- Per-version code differences and separate build folders, so the builds never mix. -->
   <PropertyGroup Condition="'$(TargetGame)' == '1.40.8'">
     <DefineConstants>$(DefineConstants);GAME_1_40</DefineConstants>
     <BaseOutputPath>bin\1.40.8\</BaseOutputPath>
     <BaseIntermediateOutputPath>obj\1.40.8\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetGame)' == '1.29.1'">
+    <DefineConstants>$(DefineConstants);GAME_1_29</DefineConstants>
+    <BaseOutputPath>bin\1.29.1\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\1.29.1\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
   <PropertyGroup>

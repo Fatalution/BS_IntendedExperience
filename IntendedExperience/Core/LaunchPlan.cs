@@ -9,6 +9,7 @@ namespace IntendedExperience.Core;
 internal enum ChangeKind
 {
     EnvironmentEffects,
+    EnvironmentOverride,
     ColorOverride,
     MapEnvironmentColors,
     EffectsBrightness
@@ -23,19 +24,25 @@ internal record struct SettingChange(ChangeKind Kind, string Setting, string Fro
 /// <summary>The setting overrides one level launch will apply.</summary>
 internal record struct LaunchPlan(
     bool EnableAllEffects,
+    bool UseMapEnvironment,
     bool UseNotesOnlyColors,
     bool EnableMapEffectColors,
     bool SetFullBrightness,
     EnvironmentEffectsFilterPreset CurrentEffects,
+    string? CurrentEnvironment,
+    string? MapEnvironment,
     float CurrentBrightness)
 {
-    public bool IsEmpty => !EnableAllEffects && !UseNotesOnlyColors && !EnableMapEffectColors && !SetFullBrightness;
+    public bool IsEmpty => !EnableAllEffects && !UseMapEnvironment && !UseNotesOnlyColors && !EnableMapEffectColors
+                           && !SetFullBrightness;
 
     public IReadOnlyList<SettingChange> Changes()
     {
         var changes = new List<SettingChange>();
         if (EnableAllEffects)
-            changes.Add(new(ChangeKind.EnvironmentEffects, "Environment Effects", EffectsName(CurrentEffects), "All Effects"));
+            changes.Add(new(ChangeKind.EnvironmentEffects, "Effects", EffectsName(CurrentEffects), "All Effects"));
+        if (UseMapEnvironment)
+            changes.Add(new(ChangeKind.EnvironmentOverride, "Environment", CurrentEnvironment ?? "Override", MapEnvironment ?? "Map's own"));
         if (UseNotesOnlyColors)
             changes.Add(new(ChangeKind.ColorOverride, "Color Override", "All", "Notes Only"));
         if (EnableMapEffectColors)
@@ -52,6 +59,7 @@ internal record struct LaunchPlan(
     public LaunchPlan Only(Func<ChangeKind, bool> accepted) => this with
     {
         EnableAllEffects = EnableAllEffects && accepted(ChangeKind.EnvironmentEffects),
+        UseMapEnvironment = UseMapEnvironment && accepted(ChangeKind.EnvironmentOverride),
         UseNotesOnlyColors = UseNotesOnlyColors && accepted(ChangeKind.ColorOverride),
         EnableMapEffectColors = EnableMapEffectColors && accepted(ChangeKind.MapEnvironmentColors),
         SetFullBrightness = SetFullBrightness && accepted(ChangeKind.EffectsBrightness)
