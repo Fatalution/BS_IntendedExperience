@@ -14,18 +14,6 @@ internal class LaunchPreview : ITickable
     private readonly SettingsSetterPrompt settingsSetterPrompt;
     private readonly PluginConfig config;
 
-    public LaunchPreview(StandardLevelDetailViewController levelDetailViewController, PlayerDataModel playerDataModel,
-        LaunchPlanner launchPlanner, MapExclusions mapExclusions, SettingsSetterPrompt settingsSetterPrompt,
-        PluginConfig config)
-    {
-        this.levelDetailViewController = levelDetailViewController;
-        this.playerDataModel = playerDataModel;
-        this.launchPlanner = launchPlanner;
-        this.mapExclusions = mapExclusions;
-        this.settingsSetterPrompt = settingsSetterPrompt;
-        this.config = config;
-    }
-
     public event Action? Changed;
 
     public MapDifficulty? Map { get; private set; }
@@ -40,6 +28,18 @@ internal class LaunchPreview : ITickable
 
     public bool ShowTooltips { get; private set; }
 
+    public LaunchPreview(StandardLevelDetailViewController levelDetailViewController, PlayerDataModel playerDataModel,
+        LaunchPlanner launchPlanner, MapExclusions mapExclusions, SettingsSetterPrompt settingsSetterPrompt,
+        PluginConfig config)
+    {
+        this.levelDetailViewController = levelDetailViewController;
+        this.playerDataModel = playerDataModel;
+        this.launchPlanner = launchPlanner;
+        this.mapExclusions = mapExclusions;
+        this.settingsSetterPrompt = settingsSetterPrompt;
+        this.config = config;
+    }
+
     // Polled so changes made anywhere (gameplay setup, mod settings, exclusions) show up immediately.
     public void Tick()
     {
@@ -51,7 +51,7 @@ internal class LaunchPreview : ITickable
         bool excluded = false, qualifies = false, shownInSettingsSetter = false;
         if (map is { } selected)
         {
-            plan = PlanFor(selected);
+            plan = launchPlanner.Plan(selected, LaunchSettings.FromPlayerData(playerDataModel.playerData));
             excluded = mapExclusions.IsExcluded(selected.LevelId);
             qualifies = launchPlanner.Qualifies(selected);
             shownInSettingsSetter = settingsSetterPrompt.WillShowChangesFor(selected);
@@ -85,18 +85,5 @@ internal class LaunchPreview : ITickable
         var level = levelDetailViewController.beatmapLevel;
         return level == null ? null : new MapDifficulty(level, levelDetailViewController.beatmapKey);
 #endif
-    }
-
-    private LaunchPlan PlanFor(MapDifficulty map)
-    {
-        var playerData = playerDataModel.playerData;
-#if GAME_1_29
-        // Any color override reaches the lights on 1.29.1.
-        bool overrideLightshowColors = playerData.colorSchemesSettings.overrideDefaultColors;
-#else
-        bool overrideLightshowColors = playerData.colorSchemesSettings.ShouldOverrideLightshowColors();
-#endif
-        return launchPlanner.Plan(map, playerData.playerSpecificSettings, overrideLightshowColors,
-            playerData.overrideEnvironmentSettings);
     }
 }

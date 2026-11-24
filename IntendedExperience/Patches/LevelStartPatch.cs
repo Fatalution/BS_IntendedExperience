@@ -139,32 +139,29 @@ internal class LevelStartPatch : IInitializable, IDisposable
         // applied here as if accepted; other launches (replays) get IE's changes for its settings instead.
         bool throughHeck = LaunchCallers.IsHeckPlayView();
         bool multiplayerPlus = !throughHeck && LaunchCallers.IsMultiplayerPlus();
+        string? turnedOffFor = !config.ApplyToReplays && LaunchCallers.IsReplay() ? "replays"
+            : multiplayerPlus && !config.ApplyInMultiplayerPlus ? "Multiplayer+"
+            : null;
+
         bool settingsSetterApplied = throughHeck;
         if (!throughHeck)
         {
             settingsSetterPrompt.Withdraw();
-            if (multiplayerPlus && config.Enabled && config.ApplyInMultiplayerPlus)
+            if (multiplayerPlus && config.Enabled && turnedOffFor == null)
                 settingsSetterApplied = settingsSetterPrompt.ApplyWithoutWindow(map, settings);
         }
 
-        var planned = launchPlanner.Plan(map, settings.PlayerSpecificSettings, settings.OverridesLightColors,
-            settings.OverrideEnvironmentSettings, settingsSetterApplied);
+        var planned = launchPlanner.Plan(map, settings, settingsSetterApplied);
 
         // If the changes were shown in the Settings Setter window, only what the player accepted applies.
         var plan = settingsSetterPrompt.ApplyDecision(map, planned);
         if (plan != planned)
             Plugin.Log.Info($"Settings Setter answer for '{map.SongName}': applying {plan} instead of {planned}");
 
-        if (!plan.IsEmpty && !config.ApplyToReplays && LaunchCallers.IsReplay())
+        if (turnedOffFor != null && !plan.IsEmpty)
         {
-            plan = plan.Only(_ => false);
-            Plugin.Log.Info($"Replay of '{map.SongName}': IE is turned off for replays.");
-        }
-
-        if (!plan.IsEmpty && !config.ApplyInMultiplayerPlus && multiplayerPlus)
-        {
-            plan = plan.Only(_ => false);
-            Plugin.Log.Info($"Multiplayer+ launch of '{map.SongName}': IE is turned off for Multiplayer+.");
+            plan = default;
+            Plugin.Log.Info($"'{map.SongName}': IE is turned off for {turnedOffFor}.");
         }
 
         // Set on every launch so a previous map's state never carries over.

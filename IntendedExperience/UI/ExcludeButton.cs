@@ -15,8 +15,8 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     private const string ResourcePath = "IntendedExperience.UI.ExcludeButton.bsml";
     private const string ActiveText = "<color=#FF9933>IE</color>";
     private const string ExcludedText = "<color=#808080><s>IE</s></color>";
-    private const string ActiveHint = "Click to disable IE for this map. This will be saved";
-    private const string ExcludedHint = "Click to enable IE for this map. This will be saved";
+    private const string ActiveHint = "Click to disable IE for this map. This will be saved.";
+    private const string ExcludedHint = "Click to enable IE for this map. This will be saved.";
 
     private readonly BSMLParser bsmlParser;
     private readonly LaunchPreview launchPreview;
@@ -25,6 +25,11 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     [UIObject("exclude-button")]
     private readonly GameObject excludeButton = null!;
 
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    [UIValue("button-text")]
+    public string ButtonText => launchPreview.Excluded ? ExcludedText : ActiveText;
+
     public ExcludeButton(BSMLParser bsmlParser, LaunchPreview launchPreview,
         StandardLevelDetailViewController levelDetailViewController)
     {
@@ -32,11 +37,6 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
         this.launchPreview = launchPreview;
         this.levelDetailViewController = levelDetailViewController;
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    [UIValue("button-text")]
-    public string ButtonText => launchPreview.Excluded ? ExcludedText : ActiveText;
 
     public void Initialize()
     {

@@ -138,10 +138,7 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
         if (!prompt.ShowsInMapWindow(map))
             return;
 
-        var changes = launchPlanner
-            .Plan(map, parameters.PlayerSpecificSettings, parameters.OverridesLightColors(),
-                parameters.OverrideEnvironmentSettings)
-            .Changes();
+        var changes = launchPlanner.Plan(map, parameters.Settings()).Changes();
         if (changes.Count == 0)
             return;
 
@@ -187,12 +184,6 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
     {
         private readonly ChangeKind kind;
 
-        public PromptSetting(ChangeKind kind)
-        {
-            this.kind = kind;
-            FieldName = kind.ToString();
-        }
-
         public string GroupName => HeckSettingsSetterPrompt.GroupName;
 
         // Both are set from the change being shown, just before Heck builds the window.
@@ -200,6 +191,12 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
         public string CurrentValue { get; set; } = string.Empty;
 
         public object TrueValue => CurrentValue;
+
+        public PromptSetting(ChangeKind kind)
+        {
+            this.kind = kind;
+            FieldName = kind.ToString();
+        }
 
         public void SetTemporary(object? tempValue)
         {

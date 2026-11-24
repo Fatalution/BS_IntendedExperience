@@ -9,7 +9,6 @@ using BeatSaberMarkupLanguage.Settings;
 using HMUI;
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
-using IPA.Loader;
 using JetBrains.Annotations;
 using SongCore;
 using UnityEngine;
@@ -30,14 +29,14 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private const string RowResourcePath = "IntendedExperience.UI.ExcludedMapRow.bsml";
     private const string CustomLevelPrefix = "custom_level_";
 
-    // ---- Map type switch ----
-    private const string MultiplayerPlusPluginId = "BeatSaberPlus_Multiplayer";
-    private static readonly string[] CategoryNames = { "GLS Maps", "Modcharts", "Chroma Maps" };
+    // ---- Map type switch: cells in MapCategory order ----
+    private static readonly List<object> CategoryNames = new() { "GLS Maps", "Modcharts", "Chroma Maps" };
     private static readonly string[] RuleProperties =
     {
         nameof(ForceAllEffects), nameof(ForceIntendedColors), nameof(ForceMapEnvironment), nameof(ForceFullBrightness)
     };
 
+    // ---- Services ----
     private readonly BSMLSettings bsmlSettings;
     private readonly BSMLParser bsmlParser;
     private readonly BeatmapLevelsModel beatmapLevelsModel;
@@ -47,28 +46,15 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly SettingsSetterPrompt settingsSetterPrompt;
     private readonly string rowTemplate;
 
-    private MapCategory selectedCategory = MapCategory.Gls;
-
+    // ---- Parsed objects ----
     [UIObject("settings-body")]
     private readonly GameObject settingsBody = null!;
-    [UIObject("excluded-rows")]
-    private readonly GameObject excludedRows = null!;
     [UIObject("colors-toggle")]
     private readonly GameObject colorsToggle = null!;
+    [UIObject("excluded-rows")]
+    private readonly GameObject excludedRows = null!;
 
-    public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
-        PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights,
-        SettingsSetterPrompt settingsSetterPrompt)
-    {
-        this.bsmlSettings = bsmlSettings;
-        this.bsmlParser = bsmlParser;
-        this.beatmapLevelsModel = beatmapLevelsModel;
-        this.config = config;
-        this.mapExclusions = mapExclusions;
-        this.beatSaberPlusLights = beatSaberPlusLights;
-        this.settingsSetterPrompt = settingsSetterPrompt;
-        rowTemplate = Utilities.GetResourceContent(typeof(SettingsMenu).Assembly, RowResourcePath);
-    }
+    private MapCategory selectedCategory = MapCategory.Gls;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -86,7 +72,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     // ---- Rules of the map type picked in the switch ----
     [UIValue("categories")]
-    public List<object> Categories => CategoryNames.Cast<object>().ToList();
+    public List<object> Categories => CategoryNames;
 
     [UIValue("force-all-effects")]
     public bool ForceAllEffects { get => SelectedRules.ForceAllEffects; set => SelectedRules.ForceAllEffects = value; }
@@ -100,7 +86,12 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("force-full-brightness")]
     public bool ForceFullBrightness { get => SelectedRules.ForceFullBrightness; set => SelectedRules.ForceFullBrightness = value; }
 
-    private RuleSet SelectedRules => config.RulesFor(selectedCategory);
+    // ---- Other launchers ----
+    [UIValue("apply-to-replays")]
+    public bool ApplyToReplays { get => config.ApplyToReplays; set => config.ApplyToReplays = value; }
+
+    [UIValue("apply-in-multiplayer-plus")]
+    public bool ApplyInMultiplayerPlus { get => config.ApplyInMultiplayerPlus; set => config.ApplyInMultiplayerPlus = value; }
 
     // ---- Menu ----
     [UIValue("tint-play-button")]
@@ -112,13 +103,6 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("show-in-settings-setter")]
     public bool ShowInSettingsSetter { get => config.ShowInSettingsSetter; set => config.ShowInSettingsSetter = value; }
 
-    // ---- Other launchers ----
-    [UIValue("apply-to-replays")]
-    public bool ApplyToReplays { get => config.ApplyToReplays; set => config.ApplyToReplays = value; }
-
-    [UIValue("apply-in-multiplayer-plus")]
-    public bool ApplyInMultiplayerPlus { get => config.ApplyInMultiplayerPlus; set => config.ApplyInMultiplayerPlus = value; }
-
     // ---- Optional mods (grey out their toggles when missing) ----
     [UIValue("beat-saber-plus-available")]
     public bool BeatSaberPlusAvailable => beatSaberPlusLights.IsAvailable;
@@ -127,7 +111,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     public bool SettingsSetterAvailable => settingsSetterPrompt.IsAvailable;
 
     [UIValue("multiplayer-plus-available")]
-    public bool MultiplayerPlusAvailable => PluginManager.GetPluginFromId(MultiplayerPlusPluginId) != null;
+    public bool MultiplayerPlusAvailable => InstalledMods.MultiplayerPlus;
 
     // ---- Exclusions ----
     [UIValue("exclusions-text")]
@@ -138,6 +122,22 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // ---- Footer ----
     [UIValue("version-text")]
     public string VersionText => $"v{Plugin.Version}";
+
+    private RuleSet SelectedRules => config.RulesFor(selectedCategory);
+
+    public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
+        PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights,
+        SettingsSetterPrompt settingsSetterPrompt)
+    {
+        this.bsmlSettings = bsmlSettings;
+        this.bsmlParser = bsmlParser;
+        this.beatmapLevelsModel = beatmapLevelsModel;
+        this.config = config;
+        this.mapExclusions = mapExclusions;
+        this.beatSaberPlusLights = beatSaberPlusLights;
+        this.settingsSetterPrompt = settingsSetterPrompt;
+        rowTemplate = Utilities.GetResourceContent(typeof(SettingsMenu).Assembly, RowResourcePath);
+    }
 
     public void Initialize()
     {
@@ -169,14 +169,14 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
             settingsBody.SetActive(config.Enabled);
     }
 
-    // The switch's cells are in MapCategory order; the toggles re-read the picked type's rules.
+    // The toggles re-read the picked type's rules.
     [UsedImplicitly]
     [UIAction("select-category")]
     private void SelectCategory(SegmentedControl segmentedControl, int index)
     {
         selectedCategory = (MapCategory)index;
         foreach (string property in RuleProperties)
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+            NotifyChanged(property);
         UpdateColorsToggle();
     }
 
@@ -209,8 +209,11 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private void OnExclusionsChanged()
     {
         RebuildRows();
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExclusionsText)));
+        NotifyChanged(nameof(ExclusionsText));
     }
+
+    private void NotifyChanged(string propertyName) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     // One plain row per map inside the page's own scroll view; a nested list view doesn't lay out there.
     private void RebuildRows()
@@ -257,15 +260,15 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         private readonly string levelId;
         private readonly MapExclusions mapExclusions;
 
+        [UIValue("map-name")]
+        public string MapName { get; }
+
         public ExcludedMapRow(string levelId, string mapName, MapExclusions mapExclusions)
         {
             this.levelId = levelId;
             this.mapExclusions = mapExclusions;
             MapName = mapName;
         }
-
-        [UIValue("map-name")]
-        public string MapName { get; }
 
         [UsedImplicitly]
         [UIAction("remove")]

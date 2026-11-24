@@ -6,7 +6,7 @@ namespace IntendedExperience.Compat;
 /// <summary>Reads a difficulty's mod requirements and suggestions from SongCore.</summary>
 internal static class SongCoreRequirements
 {
-    private const string Chroma = "Chroma";
+    private const string ChromaRequirement = "Chroma";
 
     private static readonly string[] ModchartRequirements = { "Noodle Extensions", "Mapping Extensions", "Vivify" };
 
@@ -21,6 +21,8 @@ internal static class SongCoreRequirements
     public static bool UsesChroma(MapDifficulty map)
     {
         var data = SongCoreDifficulty.Get(map)?.additionalDifficultyData;
-        return data != null && (data._requirements?.Contains(Chroma) == true || data._suggestions?.Contains(Chroma) == true);
+        return data != null
+               && (data._requirements?.Contains(ChromaRequirement) == true
+                   || data._suggestions?.Contains(ChromaRequirement) == true);
     }
 }

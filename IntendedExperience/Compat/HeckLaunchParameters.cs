@@ -13,11 +13,20 @@ internal static class HeckLaunchParameters
         new(parameters.BeatmapLevel, parameters.BeatmapKey);
 #endif
 
-    /// <summary>The player's color override reaches the lights too ("All" override; on 1.29.1 any override).</summary>
-    public static bool OverridesLightColors(this StartStandardLevelParameters parameters) =>
+    public static LaunchSettings Settings(this StartStandardLevelParameters parameters) => new(
+        parameters.PlayerSpecificSettings, parameters.GameplayModifiers, parameters.OverrideEnvironmentSettings,
 #if GAME_1_29
-        parameters.OverrideColorScheme != null;
+        parameters.OverrideColorScheme);
 #else
-        parameters.PlayerOverrideLightshowColors;
+        parameters.OverrideColorScheme, parameters.PlayerOverrideLightshowColors);
 #endif
+
+    /// <summary>Copies the settings back, e.g. after Heck's Settings Setter changed them.</summary>
+    public static void CopyTo(this StartStandardLevelParameters parameters, LaunchSettings settings)
+    {
+        settings.PlayerSpecificSettings = parameters.PlayerSpecificSettings;
+        settings.GameplayModifiers = parameters.GameplayModifiers;
+        settings.OverrideEnvironmentSettings = parameters.OverrideEnvironmentSettings;
+        settings.OverrideColorScheme = parameters.OverrideColorScheme;
+    }
 }

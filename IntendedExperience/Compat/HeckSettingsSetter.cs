@@ -15,8 +15,6 @@ internal readonly record struct SettingsSetterControls(bool Present, bool Enviro
 /// </summary>
 internal class HeckSettingsSetter
 {
-    private const string HeckPluginId = "Heck";
-    private const string CustomJsonDataPluginId = "CustomJSONData";
     private const string ExtensionsTypeName = "CustomJSONData.DictionaryExtensions";
 
     // ---- Settings Setter keys (difficulty custom data) ----
@@ -43,10 +41,10 @@ internal class HeckSettingsSetter
 
     public HeckSettingsSetter()
     {
-        if (PluginManager.GetPluginFromId(HeckPluginId) == null)
+        if (!InstalledMods.Heck)
             return;
 
-        getBeatmapCustomData = PluginManager.GetPluginFromId(CustomJsonDataPluginId)?.Assembly
+        getBeatmapCustomData = PluginManager.GetPluginFromId(InstalledMods.CustomJsonDataId)?.Assembly
             .GetType(ExtensionsTypeName)?
             .GetMethod("GetBeatmapCustomData", CustomDataArguments);
 

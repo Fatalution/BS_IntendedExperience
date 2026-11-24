@@ -68,10 +68,7 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
             return false;
 
         changes.Clear();
-        changes.AddRange(launchPlanner
-            .Plan(map, parameters.PlayerSpecificSettings, parameters.OverridesLightColors(),
-                parameters.OverrideEnvironmentSettings)
-            .Changes());
+        changes.AddRange(launchPlanner.Plan(map, parameters.Settings()).Changes());
         if (changes.Count == 0)
             return false;
 
@@ -94,6 +91,7 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
         header.anchorMax = new Vector2(header.anchorMax.x, HeaderAnchorMaxY);
     }
 
+    [UsedImplicitly]
     [UIAction("accept-click")]
     private void AcceptClick()
     {
@@ -103,22 +101,23 @@ internal class IntendedChangesView : BSMLResourceViewController, IPlayViewContro
     }
 
     // Nothing accepted, so IE applies none of its changes for this launch.
+    [UsedImplicitly]
     [UIAction("decline-click")]
     private void DeclineClick() => Finished?.Invoke();
 
     /// <summary>Host for one row: setting name on the left, "from -> to" on the right.</summary>
     private class ChangeRow
     {
-        public ChangeRow(SettingChange change)
-        {
-            Setting = change.Setting;
-            Change = $"{change.From} -> {change.To}";
-        }
-
         [UIValue("setting")]
         public string Setting { get; }
 
         [UIValue("change")]
         public string Change { get; }
+
+        public ChangeRow(SettingChange change)
+        {
+            Setting = change.Setting;
+            Change = $"{change.From} -> {change.To}";
+        }
     }
 }

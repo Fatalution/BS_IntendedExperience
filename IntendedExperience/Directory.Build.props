@@ -13,13 +13,10 @@
     <PluginName>IntendedExperience</PluginName>
     <Authors>Fatalution</Authors>
     <!-- Development builds add a letter as a prerelease tag (0.3.2-a, shown as 0.3.2a); releases drop it. -->
-    <Version>0.3.3-f</Version>
+    <Version>0.3.3-g</Version>
     <GameVersion>$(TargetGame)</GameVersion>
-    <Description>Shows GLS (v3+) lightshows and modcharts as the mapper made them by applying the right effects and color settings for that map only.</Description>
-    <!--<PluginIcon></PluginIcon>-->
+    <Description>Shows GLS maps, Chroma maps and modcharts as the mapper made them by setting effects, colors, environment and brightness for that map only.</Description>
     <ProjectSource>https://github.com/Fatalution/BS_IntendedExperience</ProjectSource>
-    <!--<ProjectHome></ProjectHome>-->
-    <!--<DonateUrl></DonateUrl>-->
   </PropertyGroup>
 
   <!-- Plugin Dependencies -->

@@ -1,6 +1,5 @@
 using System.Linq;
 using IntendedExperience.Compat;
-using IPA.Loader;
 using UnityEngine;
 
 namespace IntendedExperience.Core;
@@ -8,8 +7,6 @@ namespace IntendedExperience.Core;
 /// <summary>Decides which settings a launch must override to show a map as intended.</summary>
 internal class LaunchPlanner
 {
-    private const string ChromaPluginId = "Chroma";
-
     private readonly PluginConfig config;
     private readonly MapExclusions mapExclusions;
     private readonly SongCoreColors songCoreColors;
@@ -18,7 +15,6 @@ internal class LaunchPlanner
 #if !GAME_1_29
     private readonly EnvironmentsListModel environmentsListModel;
 #endif
-    private readonly bool chromaInstalled = PluginManager.GetPluginFromId(ChromaPluginId) != null;
 
 #if GAME_1_29
     public LaunchPlanner(PluginConfig config, MapExclusions mapExclusions, SongCoreColors songCoreColors,
@@ -43,16 +39,18 @@ internal class LaunchPlanner
     /// Heck applies the map's Settings Setter for this launch. When it doesn't, IE also changes the settings the
     /// Settings Setter would have set.
     /// </param>
-    public LaunchPlan Plan(MapDifficulty map, PlayerSpecificSettings playerSettings, bool overrideLightshowColors,
-        OverrideEnvironmentSettings? overrideEnvironmentSettings, bool settingsSetterApplies = true)
+    public LaunchPlan Plan(MapDifficulty map, LaunchSettings settings, bool settingsSetterApplies = true)
     {
+        if (!config.Enabled || mapExclusions.IsExcluded(map.LevelId))
+            return default;
+
         var environment = MapEnvironment(map);
-        if (!config.Enabled || mapExclusions.IsExcluded(map.LevelId) || CategoryOf(map, environment) is not { } category)
+        if (CategoryOf(map, environment) is not { } category)
             return default;
 
         var rules = config.RulesFor(category);
-        var currentEffects = playerSettings.GetEnvironmentEffectsFilterPreset(map.Difficulty);
-        var environmentOverride = ActiveEnvironmentOverride(environment, overrideEnvironmentSettings);
+        var currentEffects = settings.PlayerSpecificSettings.GetEnvironmentEffectsFilterPreset(map.Difficulty);
+        var environmentOverride = ActiveEnvironmentOverride(environment, settings.OverrideEnvironmentSettings);
         float currentBrightness = beatSaberPlusLights.EffectiveBrightness;
 
         // Settings the map's Settings Setter sets are the mapper's call, so IE leaves them alone.
@@ -70,7 +68,7 @@ internal class LaunchPlanner
                               && currentEffects != EnvironmentEffectsFilterPreset.AllEffects
                               && !setterControls.EnvironmentEffects,
             UseMapEnvironment: rules.ForceMapEnvironment && environmentOverride != null && !setterControls.Environment,
-            UseNotesOnlyColors: manageColors && overrideLightshowColors && !setterControls.Colors && !mapColorsCoverEffects,
+            UseNotesOnlyColors: manageColors && settings.OverridesLightColors && !setterControls.Colors && !mapColorsCoverEffects,
             EnableMapEffectColors: manageColors && !songCoreColors.EnvironmentColorsEnabled && SongCoreColors.HasEffectColors(map),
             SetFullBrightness: rules.ForceFullBrightness && !Mathf.Approximately(currentBrightness, 1f),
             CurrentEffects: currentEffects,
@@ -87,7 +85,7 @@ internal class LaunchPlanner
     {
         if (SongCoreRequirements.IsModchart(map))
             return MapCategory.Modcharts;
-        if (chromaInstalled && SongCoreRequirements.UsesChroma(map))
+        if (InstalledMods.Chroma && SongCoreRequirements.UsesChroma(map))
             return MapCategory.Chroma;
         return UsesGroupLighting(environment) ? MapCategory.Gls : null;
     }

@@ -29,7 +29,7 @@ internal class HeckSettingsSetterAutoApply : IInitializable
     private MethodInfo? onFinish;
 
     // The view whose settings stay applied until the level ends.
-    private object? appliedView;
+    private IPlayViewController? appliedView;
 
     public HeckSettingsSetterAutoApply(SettingsSetterPrompt prompt)
     {
@@ -70,11 +70,7 @@ internal class HeckSettingsSetterAutoApply : IInitializable
                 return true;
             }
 
-            var modified = (StartStandardLevelParameters)modifiedParametersField!.GetValue(view);
-            settings.PlayerSpecificSettings = modified.PlayerSpecificSettings;
-            settings.GameplayModifiers = modified.GameplayModifiers;
-            settings.OverrideEnvironmentSettings = modified.OverrideEnvironmentSettings;
-            settings.OverrideColorScheme = modified.OverrideColorScheme;
+            ((StartStandardLevelParameters)modifiedParametersField!.GetValue(view)).CopyTo(settings);
 
             // Graphics settings and other mods' settings, as Heck applies them just before the level starts.
             onPlay!.Invoke(view, null);

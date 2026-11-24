@@ -8,14 +8,14 @@ internal class MapExclusions
 {
     private readonly PluginConfig config;
 
+    public event Action? Changed;
+
+    public IReadOnlyList<string> LevelIds => config.ExcludedLevelIds;
+
     public MapExclusions(PluginConfig config)
     {
         this.config = config;
     }
-
-    public event Action? Changed;
-
-    public IReadOnlyList<string> LevelIds => config.ExcludedLevelIds;
 
     public bool IsExcluded(string levelId) => config.ExcludedLevelIds.Contains(levelId);
 

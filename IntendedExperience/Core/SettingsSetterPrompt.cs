@@ -17,12 +17,6 @@ internal class SettingsSetterPrompt
 
     private MapDifficulty? offeredMap;
 
-    public SettingsSetterPrompt(PluginConfig config, HeckSettingsSetter heckSettingsSetter)
-    {
-        this.config = config;
-        this.heckSettingsSetter = heckSettingsSetter;
-    }
-
     /// <summary>The Heck hook is active, so the "show in Settings Setter" option can be used.</summary>
     public bool IsAvailable { get; set; }
 
@@ -37,6 +31,12 @@ internal class SettingsSetterPrompt
 
     /// <summary>Undoes what <see cref="ApplyWithoutWindow"/> changed outside the launch settings, after the level.</summary>
     public Action RestoreAppliedWithoutWindow { get; set; } = () => { };
+
+    public SettingsSetterPrompt(PluginConfig config, HeckSettingsSetter heckSettingsSetter)
+    {
+        this.config = config;
+        this.heckSettingsSetter = heckSettingsSetter;
+    }
 
     /// <summary>The map has its own Settings Setter, whose window appears anyway: IE's rows are added to it.</summary>
     public bool ShowsInMapWindow(MapDifficulty map) =>

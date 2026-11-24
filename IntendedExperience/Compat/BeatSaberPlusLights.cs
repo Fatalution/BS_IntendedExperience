@@ -11,7 +11,6 @@ namespace IntendedExperience.Compat;
 /// </summary>
 internal class BeatSaberPlusLights : IDisposable
 {
-    private const string PluginId = "BeatSaberPlus_GameTweaker";
     private const string HarmonyId = "com.fatalution.IntendedExperience.BeatSaberPlusLights";
     private const string ConfigTypeName = "BeatSaberPlus_GameTweaker.GTConfig";
     private const string LightsPatchesTypeName = "BeatSaberPlus_GameTweaker.Patches.Lights.PLightsPatches";
@@ -32,9 +31,26 @@ internal class BeatSaberPlusLights : IDisposable
     private readonly MethodInfo? setFromConfig;
     private readonly Harmony? harmony;
 
+    public bool IsAvailable { get; }
+
+    /// <summary>The brightness GameTweaker would apply to the next map (1 = 100%).</summary>
+    public float EffectiveBrightness
+    {
+        get
+        {
+            if (!IsAvailable || !(bool)enabledField!.GetValue(config))
+                return FullBrightness;
+
+            var playerOptions = playerOptionsField!.GetValue(config);
+            return (bool)overrideOptionField!.GetValue(playerOptions)
+                ? (float)overrideIntensityField!.GetValue(playerOptions)
+                : FullBrightness;
+        }
+    }
+
     public BeatSaberPlusLights()
     {
-        var assembly = PluginManager.GetPluginFromId(PluginId)?.Assembly;
+        var assembly = PluginManager.GetPluginFromId(InstalledMods.GameTweakerId)?.Assembly;
         if (assembly == null)
             return;
 
@@ -59,29 +75,12 @@ internal class BeatSaberPlusLights : IDisposable
 
             // GameTweaker loads its intensity at each level start; this runs straight after.
             harmony = new Harmony(HarmonyId);
-            harmony.Patch(setFromConfig!, postfix: new HarmonyMethod(typeof(BeatSaberPlusLights), nameof(SetFromConfigPostfix)));
+            harmony.Patch(setFromConfig, postfix: new HarmonyMethod(typeof(BeatSaberPlusLights), nameof(SetFromConfigPostfix)));
             IsAvailable = true;
         }
         catch (Exception ex)
         {
             Plugin.Log.Warn($"BeatSaberPlus GameTweaker found but its light brightness couldn't be hooked: {ex.Message}");
-        }
-    }
-
-    public bool IsAvailable { get; }
-
-    /// <summary>The brightness GameTweaker would apply to the next map (1 = 100%).</summary>
-    public float EffectiveBrightness
-    {
-        get
-        {
-            if (!IsAvailable || !(bool)enabledField!.GetValue(config))
-                return FullBrightness;
-
-            var playerOptions = playerOptionsField!.GetValue(config);
-            return (bool)overrideOptionField!.GetValue(playerOptions)
-                ? (float)overrideIntensityField!.GetValue(playerOptions)
-                : FullBrightness;
         }
     }
 

@@ -33,6 +33,8 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     private NoTransitionsButton? actionButton;
     private HoverHint? hoverHint;
 
+    private bool IsTinted => config.TintPlayButton && !launchPreview.Plan.IsEmpty;
+
     public PlayButtonTint(PluginConfig config, LaunchPreview launchPreview,
         StandardLevelDetailViewController levelDetailViewController, DiContainer container)
     {
@@ -41,8 +43,6 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
         this.levelDetailViewController = levelDetailViewController;
         this.container = container;
     }
-
-    private bool IsTinted => config.TintPlayButton && !launchPreview.Plan.IsEmpty;
 
     public void Initialize() => launchPreview.Changed += Refresh;
 

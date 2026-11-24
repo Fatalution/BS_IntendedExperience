@@ -18,12 +18,6 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
     private readonly GameplaySetup gameplaySetup;
     private readonly LaunchPreview launchPreview;
 
-    public MapTab(GameplaySetup gameplaySetup, LaunchPreview launchPreview)
-    {
-        this.gameplaySetup = gameplaySetup;
-        this.launchPreview = launchPreview;
-    }
-
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [UIValue("qualifies")]
@@ -54,6 +48,12 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 
             return "<color=#FF9933>This launch will apply:</color>\n" + plan.DescribeChanges();
         }
+    }
+
+    public MapTab(GameplaySetup gameplaySetup, LaunchPreview launchPreview)
+    {
+        this.gameplaySetup = gameplaySetup;
+        this.launchPreview = launchPreview;
     }
 
     public void Initialize()
