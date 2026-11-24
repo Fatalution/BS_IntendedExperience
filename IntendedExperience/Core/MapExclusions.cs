@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace IntendedExperience.Core;
 
 /// <summary>Maps the player chose to always play with their own settings.</summary>
+[UsedImplicitly]
 internal class MapExclusions
 {
     private readonly PluginConfig config;

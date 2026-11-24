@@ -12,6 +12,7 @@ namespace IntendedExperience.UI;
 /// Turns the Play button orange (hue only) when launching will override settings,
 /// with a hover hint listing the overrides.
 /// </summary>
+[UsedImplicitly]
 internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
 {
     private const float TintHue = 30f / 360f;

@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- This file contains project properties used by the build. -->
 <Project>
 
   <!-- Game version to build for: 1.44.1 (default), 1.40.8 or 1.29.1, e.g. `dotnet build -p:TargetGame=1.40.8`. -->

@@ -2,10 +2,12 @@ using System.Runtime.CompilerServices;
 using IntendedExperience.Compat;
 using IntendedExperience.Core;
 using IntendedExperience.Patches;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace IntendedExperience.Installers;
 
+[UsedImplicitly]
 internal class AppInstaller : Installer
 {
     private readonly PluginConfig pluginConfig;

@@ -4,6 +4,7 @@ using System.Reflection;
 using HarmonyLib;
 using Heck.PlayView;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
@@ -14,6 +15,7 @@ namespace IntendedExperience.Compat;
 /// Heck's play flow (Multiplayer+). Runs Heck's own view, so the result is the same as accepting the window.
 /// Only loaded when Heck is installed.
 /// </summary>
+[UsedImplicitly]
 internal class HeckSettingsSetterAutoApply : IInitializable
 {
     private const string ViewTypeName = "Heck.SettingsSetter.SettingsSetterViewController";

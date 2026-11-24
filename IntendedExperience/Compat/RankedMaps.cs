@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using SongDetailsCache;
 using Zenject;
 using RankedStates = SongDetailsCache.Structs.RankedStates;
@@ -11,6 +12,7 @@ namespace IntendedExperience.Compat;
 /// Whether a custom map is ranked on ScoreSaber or BeatLeader, from SongDetailsCache when it's installed.
 /// Maps count as unranked while its data is still loading.
 /// </summary>
+[UsedImplicitly]
 internal class RankedMaps : IInitializable
 {
     private const string CustomLevelPrefix = "custom_level_";

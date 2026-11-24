@@ -1,8 +1,10 @@
 using System;
+using JetBrains.Annotations;
 
 namespace IntendedExperience.Core;
 
 /// <summary>Turns the whole mod on or off; the settings page and the song browser tab both show it.</summary>
+[UsedImplicitly]
 internal class MasterSwitch
 {
     private readonly PluginConfig config;

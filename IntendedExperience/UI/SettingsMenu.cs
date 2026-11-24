@@ -17,6 +17,7 @@ using Zenject;
 namespace IntendedExperience.UI;
 
 /// <summary>Settings -> Mod Settings page.</summary>
+[UsedImplicitly]
 internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChanged
 {
 #if GAME_1_29

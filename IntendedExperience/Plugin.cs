@@ -1,13 +1,15 @@
+using IntendedExperience.Installers;
 using IPA;
 using IPA.Config.Stores;
 using IPA.Loader;
+using JetBrains.Annotations;
 using SiraUtil.Zenject;
-using IntendedExperience.Installers;
-using IpaLogger = IPA.Logging.Logger;
 using IpaConfig = IPA.Config.Config;
+using IpaLogger = IPA.Logging.Logger;
 
 namespace IntendedExperience;
 
+[UsedImplicitly]
 [Plugin(RuntimeOptions.DynamicInit), NoEnableDisable]
 internal class Plugin
 {
@@ -18,7 +20,7 @@ internal class Plugin
     public Plugin(IpaLogger ipaLogger, IpaConfig ipaConfig, Zenjector zenjector, PluginMetadata pluginMetadata)
     {
         Log = ipaLogger;
-        // Development builds are "0.3.2-a" in the manifest (valid semver) and shown as "0.3.2a".
+        // Development builds are "1.0.0-a" in the manifest (valid semver) and shown as "1.0.0a".
         Version = pluginMetadata.HVersion.ToString().Replace("-", string.Empty);
         zenjector.UseLogger(Log);
 

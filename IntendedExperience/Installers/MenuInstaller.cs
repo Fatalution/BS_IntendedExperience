@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using IntendedExperience.Compat;
 using IntendedExperience.UI;
+using JetBrains.Annotations;
 using SiraUtil.Extras;
 using Zenject;
 #if GAME_1_29
@@ -11,6 +12,7 @@ using BeatSaberMarkupLanguage.Settings;
 
 namespace IntendedExperience.Installers;
 
+[UsedImplicitly]
 internal class MenuInstaller : Installer
 {
     public override void InstallBindings()

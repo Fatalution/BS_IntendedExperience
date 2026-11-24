@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using IntendedExperience.Core;
 using IPA.Loader;
+using JetBrains.Annotations;
 
 namespace IntendedExperience.Compat;
 
@@ -13,6 +14,7 @@ internal readonly record struct SettingsSetterControls(bool Present, bool Enviro
 /// Reads which settings a map's Heck Settings Setter block controls, so IE leaves those to the mapper.
 /// Heck and CustomJSONData are optional; without Heck the map has no Settings Setter and nothing is reported.
 /// </summary>
+[UsedImplicitly]
 internal class HeckSettingsSetter
 {
     private const string ExtensionsTypeName = "CustomJSONData.DictionaryExtensions";

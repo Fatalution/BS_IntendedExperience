@@ -19,6 +19,7 @@ namespace IntendedExperience.Compat;
 /// option on (maps with one get IE's rows in Heck's window instead). Built like Heck's Settings Setter view.
 /// Only loaded when Heck is installed.
 /// </summary>
+[UsedImplicitly]
 [PlayViewControllerSettings(1, "Intended Experience")]
 internal class IntendedChangesView : BSMLResourceViewController, IPlayViewController
 {

@@ -3,11 +3,13 @@ using System.ComponentModel;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace IntendedExperience.UI;
 
 /// <summary>Gameplay setup tab: the mod's on/off switch and what launching the selected map changes.</summary>
+[UsedImplicitly]
 internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 {
     private const string TabName = "Intended Experience";

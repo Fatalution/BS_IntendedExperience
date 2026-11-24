@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using IntendedExperience.Compat;
+using JetBrains.Annotations;
 
 namespace IntendedExperience.Core;
 
@@ -9,6 +10,7 @@ namespace IntendedExperience.Core;
 /// Setter window, or in IE's own window in Heck's play flow when the map has none.
 /// Free of Heck types so the rest of IE works without Heck; the Heck hooks fill it in.
 /// </summary>
+[UsedImplicitly]
 internal class SettingsSetterPrompt
 {
     private readonly PluginConfig config;

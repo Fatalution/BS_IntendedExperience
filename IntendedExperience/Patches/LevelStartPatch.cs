@@ -6,6 +6,7 @@ using IntendedExperience.Core;
 #if GAME_1_29
 using IPA.Utilities;
 #endif
+using JetBrains.Annotations;
 using Zenject;
 
 namespace IntendedExperience.Patches;
@@ -15,9 +16,11 @@ namespace IntendedExperience.Patches;
 /// and the saved settings are never touched. Hooks the setup data itself, which every solo launch goes through,
 /// including ones that skip the menu's StartStandardLevel (e.g. BeatLeader replays).
 /// </summary>
+[UsedImplicitly]
 internal class LevelStartPatch : IInitializable, IDisposable
 {
     private const string HarmonyId = "com.fatalution.IntendedExperience.LevelStart";
+    private const string InitMethodName = "Init";
 
     // Read by the static Harmony patches.
     private static LevelStartPatch? active;
@@ -48,7 +51,7 @@ internal class LevelStartPatch : IInitializable, IDisposable
     {
         active = this;
         var overloads = AccessTools.GetDeclaredMethods(typeof(StandardLevelScenesTransitionSetupDataSO))
-            .Where(method => method.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init));
+            .Where(method => method.Name == InitMethodName);
         foreach (var overload in overloads)
         {
             harmony.Patch(overload,
@@ -133,10 +136,8 @@ internal class LevelStartPatch : IInitializable, IDisposable
     /// </summary>
     private LaunchPlan ApplyPlan(MapDifficulty map, LaunchSettings settings)
     {
-        // Heck applies the map's Settings Setter, and asks about IE's changes, only in its own play flow.
-        // Other launches get IE's changes without asking, and an answer left over from an earlier window
-        // doesn't apply to them. Multiplayer+ shows no window, so its launches get the map's Settings Setter
-        // applied here as if accepted; other launches (replays) get IE's changes for its settings instead.
+        // Heck applies the map's Settings Setter only in its own play flow. Other launches get IE's changes
+        // without asking; Multiplayer+ launches also get the map's Settings Setter, as if accepted.
         bool throughHeck = LaunchCallers.IsHeckPlayView();
         bool multiplayerPlus = !throughHeck && LaunchCallers.IsMultiplayerPlus();
         string? turnedOffFor = !config.ApplyToReplays && LaunchCallers.IsReplay() ? "replays"

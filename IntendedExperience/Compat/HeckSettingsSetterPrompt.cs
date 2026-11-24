@@ -6,6 +6,7 @@ using HarmonyLib;
 using Heck.PlayView;
 using Heck.SettingsSetter;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace IntendedExperience.Compat;
@@ -15,6 +16,7 @@ namespace IntendedExperience.Compat;
 /// is being set up, briefly adds matching entries to the map's "_settings" data so Heck shows them next to the
 /// mapper's. Only loaded when Heck is installed.
 /// </summary>
+[UsedImplicitly]
 internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
 {
     private const string HarmonyId = "com.fatalution.IntendedExperience.HeckSettingsSetter";
@@ -122,8 +124,7 @@ internal class HeckSettingsSetterPrompt : IInitializable, IDisposable
         if (parameters is StartMultiplayerLevelParameters)
             return;
 
-        // BeatLeader opens this window before replays but never applies what's accepted in it, and an extra row
-        // makes it open the window more often (which runs into its back-button bug). IE applies its changes directly.
+        // BeatLeader opens this window before replays but never applies what's accepted in it.
         if (LaunchCallers.IsBeatLeader())
         {
             Plugin.Log.Info("BeatLeader replay: IE's changes are applied without the Settings Setter window.");

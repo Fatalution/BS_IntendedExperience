@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using HarmonyLib;
 using IPA.Loader;
+using JetBrains.Annotations;
 
 namespace IntendedExperience.Compat;
 
@@ -9,6 +10,7 @@ namespace IntendedExperience.Compat;
 /// Reads BeatSaberPlus GameTweaker's light brightness override and forces it to 100% in memory while active.
 /// Its config is internal, so everything goes through reflection; without GameTweaker this does nothing.
 /// </summary>
+[UsedImplicitly]
 internal class BeatSaberPlusLights : IDisposable
 {
     private const string HarmonyId = "com.fatalution.IntendedExperience.BeatSaberPlusLights";

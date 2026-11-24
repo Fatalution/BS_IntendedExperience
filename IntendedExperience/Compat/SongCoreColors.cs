@@ -1,12 +1,14 @@
 using System;
 using System.Reflection;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using SongCore;
 using Zenject;
 
 namespace IntendedExperience.Compat;
 
 /// <summary>Reads map effect colors from SongCore and toggles its "environment colors" setting in memory.</summary>
+[UsedImplicitly]
 internal class SongCoreColors
 {
 #if GAME_1_29

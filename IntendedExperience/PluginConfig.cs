@@ -4,11 +4,13 @@ using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
 namespace IntendedExperience;
 
+[UsedImplicitly]
 internal class PluginConfig
 {
     // ---- Master switch ----

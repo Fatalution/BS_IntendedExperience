@@ -10,6 +10,7 @@ using Zenject;
 namespace IntendedExperience.UI;
 
 /// <summary>Small button beside Play that toggles whether the selected map is excluded.</summary>
+[UsedImplicitly]
 internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChanged
 {
     private const string ResourcePath = "IntendedExperience.UI.ExcludeButton.bsml";

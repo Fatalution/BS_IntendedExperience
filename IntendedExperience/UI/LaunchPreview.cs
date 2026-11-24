@@ -1,10 +1,12 @@
 using System;
 using IntendedExperience.Core;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace IntendedExperience.UI;
 
 /// <summary>Tracks what launching the selected map would change, so the menu can show it.</summary>
+[UsedImplicitly]
 internal class LaunchPreview : ITickable
 {
     private readonly StandardLevelDetailViewController levelDetailViewController;

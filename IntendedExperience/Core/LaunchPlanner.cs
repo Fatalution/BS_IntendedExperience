@@ -1,10 +1,12 @@
 using System.Linq;
 using IntendedExperience.Compat;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace IntendedExperience.Core;
 
 /// <summary>Decides which settings a launch must override to show a map as intended.</summary>
+[UsedImplicitly]
 internal class LaunchPlanner
 {
     private const string TimbalandEnvironment = "TimbalandEnvironment";
