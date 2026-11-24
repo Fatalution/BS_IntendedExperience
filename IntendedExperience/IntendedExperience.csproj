@@ -103,6 +103,11 @@
             <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <!-- Optional at runtime: only used through RankedMaps when it's installed. -->
+        <Reference Include="SongDetailsCache">
+            <HintPath>$(BeatSaberDir)\Libs\SongDetailsCache.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.Core.dll</HintPath>

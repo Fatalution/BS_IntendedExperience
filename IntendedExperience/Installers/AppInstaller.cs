@@ -18,10 +18,12 @@ internal class AppInstaller : Installer
     public override void InstallBindings()
     {
         Container.BindInstance(pluginConfig).AsSingle();
+        Container.Bind<MasterSwitch>().AsSingle();
         Container.Bind<SongCoreColors>().AsSingle();
         Container.BindInterfacesAndSelfTo<BeatSaberPlusLights>().AsSingle();
         Container.Bind<HeckSettingsSetter>().AsSingle();
         Container.Bind<MapExclusions>().AsSingle();
+        Container.BindInterfacesAndSelfTo<RankedMaps>().AsSingle();
         Container.Bind<LaunchPlanner>().AsSingle();
         Container.Bind<SettingsSetterPrompt>().AsSingle();
         Container.BindInterfacesTo<LevelStartPatch>().AsSingle();

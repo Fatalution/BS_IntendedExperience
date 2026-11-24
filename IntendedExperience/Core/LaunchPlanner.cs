@@ -7,21 +7,24 @@ namespace IntendedExperience.Core;
 /// <summary>Decides which settings a launch must override to show a map as intended.</summary>
 internal class LaunchPlanner
 {
+    private const string TimbalandEnvironment = "TimbalandEnvironment";
+
     private readonly PluginConfig config;
     private readonly MapExclusions mapExclusions;
     private readonly SongCoreColors songCoreColors;
     private readonly BeatSaberPlusLights beatSaberPlusLights;
     private readonly HeckSettingsSetter heckSettingsSetter;
+    private readonly RankedMaps rankedMaps;
 #if !GAME_1_29
     private readonly EnvironmentsListModel environmentsListModel;
 #endif
 
 #if GAME_1_29
     public LaunchPlanner(PluginConfig config, MapExclusions mapExclusions, SongCoreColors songCoreColors,
-        BeatSaberPlusLights beatSaberPlusLights, HeckSettingsSetter heckSettingsSetter)
+        BeatSaberPlusLights beatSaberPlusLights, HeckSettingsSetter heckSettingsSetter, RankedMaps rankedMaps)
 #else
     public LaunchPlanner(PluginConfig config, MapExclusions mapExclusions, SongCoreColors songCoreColors,
-        BeatSaberPlusLights beatSaberPlusLights, HeckSettingsSetter heckSettingsSetter,
+        BeatSaberPlusLights beatSaberPlusLights, HeckSettingsSetter heckSettingsSetter, RankedMaps rankedMaps,
         EnvironmentsListModel environmentsListModel)
 #endif
     {
@@ -30,6 +33,7 @@ internal class LaunchPlanner
         this.songCoreColors = songCoreColors;
         this.beatSaberPlusLights = beatSaberPlusLights;
         this.heckSettingsSetter = heckSettingsSetter;
+        this.rankedMaps = rankedMaps;
 #if !GAME_1_29
         this.environmentsListModel = environmentsListModel;
 #endif
@@ -86,9 +90,13 @@ internal class LaunchPlanner
         if (SongCoreRequirements.IsModchart(map))
             return MapCategory.Modcharts;
         if (InstalledMods.Chroma && SongCoreRequirements.UsesChroma(map))
-            return MapCategory.Chroma;
+            return IsRankedOnTimbaland(map, environment) ? null : MapCategory.Chroma;
         return UsesGroupLighting(environment) ? MapCategory.Gls : null;
     }
+
+    // Ranked Chroma maps on Timbaland tend to be blinding with all effects on, so IE leaves them alone.
+    private bool IsRankedOnTimbaland(MapDifficulty map, EnvironmentInfoSO? environment) =>
+        environment != null && environment.serializedName == TimbalandEnvironment && rankedMaps.IsRanked(map);
 
     // Only group-lighting (v3+) environments, i.e. Weave and newer, define light groups.
     private static bool UsesGroupLighting(EnvironmentInfoSO? environment)

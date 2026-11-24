@@ -41,6 +41,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private readonly BSMLParser bsmlParser;
     private readonly BeatmapLevelsModel beatmapLevelsModel;
     private readonly PluginConfig config;
+    private readonly MasterSwitch masterSwitch;
     private readonly MapExclusions mapExclusions;
     private readonly BeatSaberPlusLights beatSaberPlusLights;
     private readonly SettingsSetterPrompt settingsSetterPrompt;
@@ -62,12 +63,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("enabled")]
     public bool Enabled
     {
-        get => config.Enabled;
-        set
-        {
-            config.Enabled = value;
-            UpdateBodyVisibility();
-        }
+        get => masterSwitch.Enabled;
+        set => masterSwitch.Enabled = value;
     }
 
     // ---- Rules of the map type picked in the switch ----
@@ -126,13 +123,14 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private RuleSet SelectedRules => config.RulesFor(selectedCategory);
 
     public SettingsMenu(BSMLSettings bsmlSettings, BSMLParser bsmlParser, BeatmapLevelsModel beatmapLevelsModel,
-        PluginConfig config, MapExclusions mapExclusions, BeatSaberPlusLights beatSaberPlusLights,
-        SettingsSetterPrompt settingsSetterPrompt)
+        PluginConfig config, MasterSwitch masterSwitch, MapExclusions mapExclusions,
+        BeatSaberPlusLights beatSaberPlusLights, SettingsSetterPrompt settingsSetterPrompt)
     {
         this.bsmlSettings = bsmlSettings;
         this.bsmlParser = bsmlParser;
         this.beatmapLevelsModel = beatmapLevelsModel;
         this.config = config;
+        this.masterSwitch = masterSwitch;
         this.mapExclusions = mapExclusions;
         this.beatSaberPlusLights = beatSaberPlusLights;
         this.settingsSetterPrompt = settingsSetterPrompt;
@@ -142,6 +140,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     public void Initialize()
     {
         bsmlSettings.AddSettingsMenu(MenuName, ResourcePath, this);
+        masterSwitch.Changed += OnMasterSwitchChanged;
         mapExclusions.Changed += OnExclusionsChanged;
         Loader.SongsLoadedEvent += OnSongsLoaded;
     }
@@ -150,6 +149,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     {
         Loader.SongsLoadedEvent -= OnSongsLoaded;
         mapExclusions.Changed -= OnExclusionsChanged;
+        masterSwitch.Changed -= OnMasterSwitchChanged;
         bsmlSettings.RemoveSettingsMenu(this);
     }
 
@@ -162,11 +162,18 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         OnExclusionsChanged();
     }
 
+    // Also switched from the song browser tab.
+    private void OnMasterSwitchChanged()
+    {
+        NotifyChanged(nameof(Enabled));
+        UpdateBodyVisibility();
+    }
+
     // Everything below the master switch is hidden while the mod is disabled.
     private void UpdateBodyVisibility()
     {
         if (settingsBody != null)
-            settingsBody.SetActive(config.Enabled);
+            settingsBody.SetActive(masterSwitch.Enabled);
     }
 
     // The toggles re-read the picked type's rules.
