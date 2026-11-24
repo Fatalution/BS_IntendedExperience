@@ -24,9 +24,10 @@ Alternatively, grab the zip for your game version from [Releases](https://github
 
 I got tired of switching settings back and forth between ranked maps with v2 autolights and proper GLS lightshows and modcharts, so I made this mod to do it for me.
 
-- GLS maps (v3+ environments, Weave and newer) take their light colors from your color scheme, so mappers can't force their colors the way Chroma maps can. With an "All" color override, the lights use your colors instead of the map's.
-- With effects set to Off or No Flickering, part of the lightshow is missing, unless the mapper set up Heck's Settings Setter to switch them on.
+- GLS maps (v3+ environments, Weave and newer) use the colors from your color scheme by default. Mappers can't force their colors the way Chroma maps can. And so, with "All" color override, the lightshow looks wrong.
+- With effects set to Off or No Flickering, the lightshow will likely be broken or not seen - unless the mapper set up Heck's Settings Setter to switch them on.
 - Modcharts (Noodle Extensions, Mapping Extensions or Vivify) have the same problems when they don't come with a Settings Setter.
+- Thinking about all of this when choosing a map to play is headache-inducing.
 
 Intended Experience switches the relevant settings for these maps and puts everything back when you move on to another map.
 
@@ -67,24 +68,39 @@ Optional: Heck for Settings Setter support, BeatSaberPlus GameTweaker for the br
 
 ## Settings
 
-- Enable All Effects: switches Off / No Flickering to All Effects.
-- Use Intended Colors: switches an All color override to Notes Only and turns on the map's SongCore environment colors. Maps that set both environment color pairs keep your override, as their colors already cover it. Note and wall colors stay the same.
-- Set Effects Brightness to 100%: resets BeatSaberPlus GameTweaker's brightness override.
+Found in Mod Settings → Intended Experience, in this order.
 
-GLS maps and modcharts each have their own set of these. Modcharts on GLS environments use the modchart set.
+- **Enabled:** turns the mod on or off.
+- **Apply to replays:** also changes settings for BeatLeader and ScoreSaber replays. On by default.
 
-"Apply to replays" decides whether IE also changes settings for BeatLeader and ScoreSaber replays. It's on by default.
+### Menu
+
+- **Tint Play button:** turns the Play button orange when IE will change something for the map.
+- **Show tooltips:** shows hover hints on the Play and IE buttons.
+- **Show changes in Settings Setter:** on maps without a Settings Setter, shows IE's changes in a matching window after pressing Play. Requires Heck.
+
+### GLS Maps and Modcharts
+
+Both sections have the same three toggles. Modcharts on GLS environments use the Modcharts ones.
+
+- **Enable All Effects:** switches Off / No Flickering to All Effects.
+- **Use Intended Colors:** switches an All color override to Notes Only and turns on the map's SongCore environment colors. Maps that set both environment color pairs keep your override. Note and wall colors stay the same.
+- **Set Effects Brightness to 100%:** resets BeatSaberPlus GameTweaker's brightness override. Requires BeatSaberPlus GameTweaker.
+
+### Excluded maps
+
+A list of maps that were excluded with the IE button press
 
 ## In game
 
-- Mod Settings → Intended Experience: settings and excluded maps.
-- IE button next to Play: excludes the selected map (crossed out when excluded).
 - Orange Play button: IE will change something for this map. Hover over it to see what.
-- Gameplay Setup → Mods → Intended Experience: exclude toggle and the list of changes.
+- IE button (next to Play): excludes the selected map.
+- Mod Settings → Intended Experience: settings and excluded maps.
+- Left Menu in song browser → Mods → Intended Experience: exclude toggle and the list of setting changes for the selected map.
 
 ## Heck Settings Setter
 
-Anything a map's Settings Setter already sets is left to it. IE adds its own rows to that window, so you can accept or decline everything in one place. For maps without a Settings Setter, turn on "Show changes in Settings Setter" to get the same kind of window for IE's changes.
+Anything a map's Settings Setter already sets is untouched. IE adds its own rows to that window if required. If you want, turn on "Show changes in Settings Setter" to get the same kind of window for IE's changes.
 
 ## How it works
 
