@@ -13,6 +13,7 @@ If the badge doesn't open Encore, paste this into your browser's address bar:
 ```
 encore://add-source?url=https://raw.githubusercontent.com/Fatalution/BS_Mods/main/index.json
 ```
+<img width="1415" height="583" alt="image" src="https://github.com/user-attachments/assets/6fbc9582-47e6-4bbe-be2e-d5548f2d4e9c" />
 
 [What's Encore?](https://encore.scoresaber.com)
 
