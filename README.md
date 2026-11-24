@@ -67,41 +67,7 @@ Intended Experience switches the relevant settings for these maps and puts every
 
 Optional: Heck for Settings Setter support, BeatSaberPlus GameTweaker for the brightness option.
 
-## Settings
-
-Found in Mod Settings → Intended Experience, in this order.
-
-- **Enabled:** turns the mod on or off.
-- **Apply to replays:** also changes settings for BeatLeader and ScoreSaber replays. On by default.
-
-### Menu
-
-- **Tint Play button:** turns the Play button orange when IE will change something for the map.
-- **Show tooltips:** shows hover hints on the Play and IE buttons.
-- **Show changes in Settings Setter:** on maps without a Settings Setter, shows IE's changes in a matching window after pressing Play. Requires Heck.
-
-### GLS Maps and Modcharts
-
-Both sections have the same three toggles. Modcharts on GLS environments use the Modcharts ones.
-
-- **Enable All Effects:** switches Off / No Flickering to All Effects.
-- **Use Intended Colors:** switches an All color override to Notes Only and turns on the map's SongCore environment colors. Maps that set both environment color pairs keep your override. Note and wall colors stay the same.
-- **Set Effects Brightness to 100%:** resets BeatSaberPlus GameTweaker's brightness override. Requires BeatSaberPlus GameTweaker.
-
-### Excluded maps
-
-A list of maps that were excluded with the IE button press
-
-## In game
-
-- Orange Play button: IE will change something for this map. Hover over it to see what.
-- IE button (next to Play): excludes the selected map.
-- Mod Settings → Intended Experience: settings and excluded maps.
-- Left Menu in song browser → Mods → Intended Experience: exclude toggle and the list of setting changes for the selected map.
-
-## Heck Settings Setter
-
-Anything a map's Settings Setter already sets is untouched. IE adds its own rows to that window if required. If you want, turn on "Show changes in Settings Setter" to get the same kind of window for IE's changes.
+Every setting and where to find things in game is in [USAGE.md](USAGE.md).
 
 ## How it works
 
