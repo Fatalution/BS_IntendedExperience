@@ -22,6 +22,12 @@ internal class LaunchPreview : ITickable
     public LaunchPlan Plan { get; private set; }
     public bool Excluded { get; private set; }
 
+    /// <summary>The selected map's type; null for a legacy map.</summary>
+    public MapCategory? Category { get; private set; }
+
+    /// <summary>The selected map is ranked on ScoreSaber or BeatLeader.</summary>
+    public bool Ranked { get; private set; }
+
     /// <summary>The selected map is a GLS map, Chroma map or modchart, so the mod can affect it.</summary>
     public bool Qualifies { get; private set; }
 
@@ -50,22 +56,27 @@ internal class LaunchPreview : ITickable
 
         var map = SelectedMap();
         LaunchPlan plan = default;
-        bool excluded = false, qualifies = false, shownInSettingsSetter = false;
+        MapCategory? category = null;
+        bool excluded = false, ranked = false, qualifies = false, shownInSettingsSetter = false;
         if (map is { } selected)
         {
             plan = launchPlanner.Plan(selected, LaunchSettings.FromPlayerData(playerDataModel.playerData));
             excluded = mapExclusions.IsExcluded(selected.LevelId);
+            category = launchPlanner.DetectCategory(selected);
+            ranked = launchPlanner.IsRanked(selected);
             qualifies = launchPlanner.Qualifies(selected);
             shownInSettingsSetter = settingsSetterPrompt.WillShowChangesFor(selected);
         }
         bool showTooltips = config.ShowTooltips;
-        if (map == Map && plan == Plan && excluded == Excluded && qualifies == Qualifies
-            && shownInSettingsSetter == ShownInSettingsSetter && showTooltips == ShowTooltips)
+        if (map == Map && plan == Plan && excluded == Excluded && category == Category && ranked == Ranked
+            && qualifies == Qualifies && shownInSettingsSetter == ShownInSettingsSetter && showTooltips == ShowTooltips)
             return;
 
         Map = map;
         Plan = plan;
         Excluded = excluded;
+        Category = category;
+        Ranked = ranked;
         Qualifies = qualifies;
         ShownInSettingsSetter = shownInSettingsSetter;
         ShowTooltips = showTooltips;

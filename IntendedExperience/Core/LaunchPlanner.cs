@@ -86,13 +86,25 @@ internal class LaunchPlanner
     /// <summary>The map is one IE handles: a GLS (v3+) map, a Chroma map or a modchart.</summary>
     public bool Qualifies(MapDifficulty map) => CategoryOf(map, MapEnvironment(map)) != null;
 
-    // The most specific category wins: modchart, then Chroma, then GLS.
+    /// <summary>What kind of map this is, even when IE leaves it alone; null for a legacy map.</summary>
+    public MapCategory? DetectCategory(MapDifficulty map) => DetectCategory(map, MapEnvironment(map));
+
+    public bool IsRanked(MapDifficulty map) => rankedMaps.IsRanked(map);
+
+    // The category whose rules apply, or null when IE leaves the map alone.
     private MapCategory? CategoryOf(MapDifficulty map, EnvironmentInfoSO? environment)
+    {
+        var category = DetectCategory(map, environment);
+        return category == MapCategory.Chroma && IsRankedOnTimbaland(map, environment) ? null : category;
+    }
+
+    // The most specific category wins: modchart, then Chroma, then GLS.
+    private static MapCategory? DetectCategory(MapDifficulty map, EnvironmentInfoSO? environment)
     {
         if (SongCoreRequirements.IsModchart(map))
             return MapCategory.Modcharts;
         if (InstalledMods.Chroma && SongCoreRequirements.UsesChroma(map))
-            return IsRankedOnTimbaland(map, environment) ? null : MapCategory.Chroma;
+            return MapCategory.Chroma;
         return UsesGroupLighting(environment) ? MapCategory.Gls : null;
     }
 

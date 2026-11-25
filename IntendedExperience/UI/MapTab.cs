@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using IntendedExperience.Core;
 using JetBrains.Annotations;
+using TMPro;
 using Zenject;
 
 namespace IntendedExperience.UI;
@@ -18,9 +19,18 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
     // IE only applies to solo-style launches (Solo, Party, and mod flows like Multiplayer+), not Online or Campaign.
     private const MenuType TabMenus = MenuType.Solo | MenuType.Custom;
 
+    // Same orange as the tinted Play button.
+    private const string HighlightColor = "#FF9933";
+    private const string NothingToChangeText = $"<color={HighlightColor}>Nothing to change.</color>";
+
     private readonly GameplaySetup gameplaySetup;
     private readonly LaunchPreview launchPreview;
     private readonly MasterSwitch masterSwitch;
+
+    // Set by BSML when the tab is first shown.
+    [UIComponent("changes-text")]
+    private TextMeshProUGUI? changesTextView = null;
+    private CenteredTextBlock? changesTextBlock;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -31,27 +41,52 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
         set => masterSwitch.Enabled = value;
     }
 
+    // E.g. "GLS · Ranked".
+    [UIValue("map-type-text")]
+    public string MapTypeText
+    {
+        get
+        {
+            if (launchPreview.Map == null)
+                return "No map selected.";
+
+            string type = launchPreview.Category switch
+            {
+                MapCategory.Gls => "GLS",
+                MapCategory.Modcharts => "Modchart",
+                MapCategory.Chroma => "Chroma",
+                _ => "Legacy"
+            };
+            return launchPreview.Ranked ? $"<b>{type}</b> · <color=#FFD54F>Ranked</color>" : $"<b>{type}</b>";
+        }
+    }
+
+    // One centred line: what IE will do with this map.
     [UIValue("status-text")]
     public string StatusText
     {
         get
         {
-            if (!masterSwitch.Enabled)
-                return "Intended Experience is turned off: your own settings will be used.";
             if (launchPreview.Map == null)
-                return "No map selected.";
+                return "";
+            if (!masterSwitch.Enabled)
+                return "Intended Experience is turned off.";
             if (!launchPreview.Qualifies)
-                return "Not a GLS map, Chroma map or modchart: your own settings will be used.";
+                return NothingToChangeText;
             if (launchPreview.Excluded)
-                return "Excluded with the IE button: your own settings will be used.";
+                return "Excluded with the IE button.";
+            if (launchPreview.Plan.IsEmpty)
+                return NothingToChangeText;
 
-            var plan = launchPreview.Plan;
-            if (plan.IsEmpty)
-                return "Nothing to change for this map.";
-
-            return "<color=#FF9933>This launch will apply:</color>\n" + plan.DescribeChanges();
+            return $"<color={HighlightColor}>This launch will apply:</color>";
         }
     }
+
+    [UIValue("changes-text")]
+    public string ChangesText => AppliesChanges ? launchPreview.Plan.DescribeChanges() : "";
+
+    private bool AppliesChanges => launchPreview.Map != null && masterSwitch.Enabled && launchPreview.Qualifies
+                                   && !launchPreview.Excluded && !launchPreview.Plan.IsEmpty;
 
     public MapTab(GameplaySetup gameplaySetup, LaunchPreview launchPreview, MasterSwitch masterSwitch)
     {
@@ -74,10 +109,17 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
         gameplaySetup.RemoveTab(TabName);
     }
 
+    [UIAction("#post-parse")]
+    [UsedImplicitly]
+    private void PostParse() => changesTextBlock = changesTextView!.gameObject.AddComponent<CenteredTextBlock>();
+
     private void NotifyAllChanged()
     {
         NotifyChanged(nameof(Enabled));
+        NotifyChanged(nameof(MapTypeText));
         NotifyChanged(nameof(StatusText));
+        NotifyChanged(nameof(ChangesText));
+        changesTextBlock?.Refresh();
     }
 
     private void NotifyChanged(string propertyName) =>

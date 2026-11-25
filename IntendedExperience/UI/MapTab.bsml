@@ -1,10 +1,29 @@
-<vertical xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'
-          spacing="2" pad="4" vertical-fit="PreferredSize">
-    <toggle-setting text="Enabled" value="enabled" apply-on-change="true" bind-value="true"
-                    hover-hint="Turns Intended Experience on or off."/>
-    <!-- Fixed height, so the toggle above stays in place however long the text is. -->
-    <vertical pref-height="34" vertical-fit="Unconstrained" child-align="UpperLeft"
-              child-control-height="true" child-expand-height="false" child-control-width="true" child-expand-width="true">
-        <text text="~status-text" font-size="4" word-wrapping="true" rich-text="true"/>
-    </vertical>
-</vertical>
+<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
+    <!-- A settings container keeps the tab as wide as other mods' tabs (e.g. JDFixer); it fills the tab's height. -->
+    <settings-container child-control-width="true" child-expand-width="true">
+        <toggle-setting text="Enabled" value="enabled" apply-on-change="true" bind-value="true"
+                        hover-hint="Turns Intended Experience on or off."/>
+        <!-- Fixed heights, so the toggle above stays in place however long the text is. The container doesn't size its
+             children's heights, so this block sizes itself. A text gets no height from a layout group, so each fills a
+             sized row. -->
+        <vertical pref-height="48" vertical-fit="PreferredSize" horizontal-fit="Unconstrained" child-align="UpperLeft" pad-top="4"
+                  spacing="4" child-control-height="true" child-expand-height="false" child-control-width="true" child-expand-width="true">
+            <horizontal pref-height="6" vertical-fit="Unconstrained" child-control-height="true" child-expand-height="true"
+                        child-control-width="true" child-expand-width="true">
+                <text text="~map-type-text" font-size="4" rich-text="true" align="Center"/>
+            </horizontal>
+            <vertical pref-height="34" vertical-fit="Unconstrained" horizontal-fit="Unconstrained" spacing="1"
+                      child-control-height="true" child-expand-height="false" child-control-width="true" child-expand-width="true">
+                <horizontal pref-height="6" vertical-fit="Unconstrained" child-control-height="true" child-expand-height="true"
+                            child-control-width="true" child-expand-width="true">
+                    <text text="~status-text" font-size="4" word-wrapping="true" rich-text="true" align="Top"/>
+                </horizontal>
+                <!-- Up to five changes, centred as a block in code. -->
+                <vertical pref-height="27" vertical-fit="Unconstrained" horizontal-fit="Unconstrained" child-control-height="true"
+                          child-expand-height="true" child-control-width="true" child-expand-width="true">
+                    <text id="changes-text" text="~changes-text" font-size="4" word-wrapping="true" rich-text="true" align="TopLeft"/>
+                </vertical>
+            </vertical>
+        </vertical>
+    </settings-container>
+</bg>
