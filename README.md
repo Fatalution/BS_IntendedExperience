@@ -13,7 +13,8 @@ If the badge doesn't open Encore, paste this into your browser's address bar:
 ```
 encore://add-source?url=https://raw.githubusercontent.com/Fatalution/BS_Mods/main/index.json
 ```
-<img width="1415" height="583" alt="image" src="https://github.com/user-attachments/assets/6fbc9582-47e6-4bbe-be2e-d5548f2d4e9c" />
+
+<img width="1418" height="576" alt="Adding the repository in Encore" src="https://github.com/user-attachments/assets/00e1ff16-915a-42da-9034-2d9312f1a635" /><br>
 
 [What's Encore?](https://encore.scoresaber.com)
 
@@ -42,10 +43,6 @@ Intended Experience switches the relevant settings for these maps and puts every
 
 ## Screenshots
 
-**Settings**
-
-<img width="700" alt="Intended Experience settings" src="https://github.com/user-attachments/assets/9a6d9f85-9a16-4826-a5ca-9e2c166bbf53" />
-
 **Hovering over the Play button** shows what will change.
 
 <img width="700" alt="Play button tooltip listing the changes" src="https://github.com/user-attachments/assets/fb5246e5-6e2e-47a5-a263-c32d16a96593" />
@@ -58,6 +55,12 @@ Intended Experience switches the relevant settings for these maps and puts every
 
 <img width="700" alt="Settings Setter window with Intended Experience rows" src="https://github.com/user-attachments/assets/2cd5be44-a752-4f11-b794-ba35ca4c97f3" />
 
+**Settings**
+
+<img width="700" alt="Intended Experience settings" src="https://github.com/user-attachments/assets/d2d7c517-0b38-414e-8610-58c8e296f8ed" />
+
+Every setting and where to find things in game is in [USAGE.md](USAGE.md).
+
 ## Supported versions
 
 | Beat Saber | BSIPA | BSML | SiraUtil | SongCore |
@@ -69,8 +72,6 @@ Intended Experience switches the relevant settings for these maps and puts every
 1.29.1 is supported by 0.4.0 only and won't get further updates.
 
 Optional: Heck for Settings Setter support, Chroma for Chroma maps, BeatSaberPlus GameTweaker for the brightness option, BeatSaberPlus Multiplayer+ for lobbies.
-
-Every setting and where to find things in game is in [USAGE.md](USAGE.md).
 
 ## How it works
 

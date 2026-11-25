@@ -4,7 +4,7 @@
 
 Found in Mod Settings → Intended Experience.
 
-- **Enabled:** turns the mod on or off. The same switch is in the song browser tab.
+- **Enabled:** turns the mod on or off. The same switch is in the song browser tab. While it's off, the other settings are hidden.
 
 ### Map Types
 
@@ -37,7 +37,7 @@ The maps you excluded with the IE button. Remove one to let IE handle it again, 
 ## In game
 
 - **Orange Play button:** IE will change something for this map. Hover over it to see what.
-- **IE button** (next to Play): excludes the selected map, or brings it back.
+- **IE button** (next to Play, on GLS maps, Chroma maps and modcharts): excludes the selected map, or brings it back.
 - **Mod Settings → Intended Experience:** settings and excluded maps.
 - **Song browser, left menu → Mods → Intended Experience:** the Enabled switch, the selected map's type (GLS, Modchart, Chroma or Legacy, and whether it's ranked) and the list of changes.
 
