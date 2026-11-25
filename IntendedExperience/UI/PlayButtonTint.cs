@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HMUI;
 using JetBrains.Annotations;
@@ -29,6 +30,7 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
     private readonly LaunchPreview launchPreview;
     private readonly StandardLevelDetailViewController levelDetailViewController;
     private readonly DiContainer container;
+    private readonly List<ImageColors> originalColors = new();
 
     private ButtonStaticAnimations? buttonAnimations;
     private NoTransitionsButton? actionButton;
@@ -70,8 +72,24 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
             return false;
         }
 
+        foreach (var imageView in buttonAnimations.GetComponentsInChildren<ImageView>(true))
+            originalColors.Add(new ImageColors(imageView));
+
         hoverHint = container.InstantiateComponent<HoverHint>(actionButton.gameObject);
         return true;
+    }
+
+    // The state clips don't key every color (e.g. the hover border's), so restore them all before sampling.
+    [AffinityPatch(typeof(ButtonStaticAnimations), ResampleMethodName)]
+    [UsedImplicitly]
+    [AffinityPrefix]
+    private void AnimationSampledPrefix(ButtonStaticAnimations __instance)
+    {
+        if (__instance != buttonAnimations)
+            return;
+
+        foreach (var colors in originalColors)
+            colors.Restore();
     }
 
     [AffinityPatch(typeof(ButtonStaticAnimations), ResampleMethodName)]
@@ -92,12 +110,8 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
         if (!IsTinted)
             return;
 
-        foreach (var imageView in __instance.GetComponentsInChildren<ImageView>(true))
-        {
-            imageView.color = WithTintHue(imageView.color);
-            imageView.color0 = WithTintHue(imageView.color0);
-            imageView.color1 = WithTintHue(imageView.color1);
-        }
+        foreach (var colors in originalColors)
+            colors.ApplyTint();
     }
 
     private static Color WithTintHue(Color color)
@@ -106,5 +120,25 @@ internal class PlayButtonTint : IInitializable, IDisposable, IAffinity
         var tinted = Color.HSVToRGB(TintHue, saturation, value);
         tinted.a = color.a;
         return tinted;
+    }
+
+    /// <summary>An image of the button with its untinted colors.</summary>
+    private readonly record struct ImageColors(ImageView ImageView, Color Color, Color Color0, Color Color1)
+    {
+        public ImageColors(ImageView imageView) : this(imageView, imageView.color, imageView.color0, imageView.color1) { }
+
+        public void Restore()
+        {
+            ImageView.color = Color;
+            ImageView.color0 = Color0;
+            ImageView.color1 = Color1;
+        }
+
+        public void ApplyTint()
+        {
+            ImageView.color = WithTintHue(ImageView.color);
+            ImageView.color0 = WithTintHue(ImageView.color0);
+            ImageView.color1 = WithTintHue(ImageView.color1);
+        }
     }
 }
