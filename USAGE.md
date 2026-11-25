@@ -39,7 +39,7 @@ The maps you excluded with the IE button. Remove one to let IE handle it again, 
 - **Orange Play button:** IE will change something for this map. Hover over it to see what.
 - **IE button** (next to Play): excludes the selected map, or brings it back.
 - **Mod Settings → Intended Experience:** settings and excluded maps.
-- **Song browser, left menu → Mods → Intended Experience:** the Enabled switch and the list of changes for the selected map.
+- **Song browser, left menu → Mods → Intended Experience:** the Enabled switch, the selected map's type (GLS, Modchart, Chroma or Legacy, and whether it's ranked) and the list of changes.
 
 ## Settings Setter
 

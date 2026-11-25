@@ -1,6 +1,6 @@
 # Intended Experience
 
-Sets up your player settings so GLS maps and modcharts look the way the mapper made them.
+Sets up your player settings so GLS maps, Chroma maps and modcharts look the way the mapper made them.
 
 ## Install
 
@@ -64,8 +64,11 @@ Intended Experience switches the relevant settings for these maps and puts every
 |---|---|---|---|---|
 | 1.44.1 | 4.3.0+ | 1.14.1+ | 3.3.1+ | 3.16.0+ |
 | 1.40.8 | 4.3.0+ | 1.12.5+ | 3.2.1+ | 3.15.3+ |
+| 1.29.1 | 4.3.0+ | 1.6.10+ | 3.1.2+ | 3.11.1+ |
 
-Optional: Heck for Settings Setter support, BeatSaberPlus GameTweaker for the brightness option.
+1.29.1 is supported by 0.4.0 only and won't get further updates.
+
+Optional: Heck for Settings Setter support, Chroma for Chroma maps, BeatSaberPlus GameTweaker for the brightness option, BeatSaberPlus Multiplayer+ for lobbies.
 
 Every setting and where to find things in game is in [USAGE.md](USAGE.md).
 
@@ -87,7 +90,7 @@ Create `IntendedExperience/IntendedExperience.csproj.user` pointing at your game
 
 Then run `dotnet build`, or `dotnet build -c Release` for a zip.
 
-For 1.40.8, add `-p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"` or set `BeatSaberDir_1_40_8` in the `.csproj.user`. The output goes to `bin/1.40.8/`.
+For 1.40.8, add `-p:TargetGame=1.40.8 -p:BeatSaberDir="C:/Path/To/Beat Saber 1.40.8"` or set `BeatSaberDir_1_40_8` in the `.csproj.user`. The output goes to `bin/1.40.8/`. 1.29.1 works the same way with `-p:TargetGame=1.29.1` and `bin/1.29.1/`.
 
 ## Issues
 
