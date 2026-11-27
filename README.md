@@ -71,7 +71,13 @@ Every setting and where to find things in game is in [USAGE.md](USAGE.md).
 
 1.29.1 is supported by 0.4.0 only and won't get further updates.
 
-Optional: Heck for Settings Setter support, Chroma for Chroma maps, BeatSaberPlus GameTweaker for the brightness option, BeatSaberPlus Multiplayer+ for lobbies.
+Optional:
+
+- Heck for Settings Setter support
+- Chroma for Chroma maps
+- SongDetailsCache for ranked maps
+- BeatSaberPlus GameTweaker for the brightness option
+- BeatSaberPlus Multiplayer+
 
 ## How it works
 
