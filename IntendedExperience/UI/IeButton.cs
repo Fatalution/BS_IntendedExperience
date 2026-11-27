@@ -14,29 +14,29 @@ namespace IntendedExperience.UI;
 /// on (includes) for the selected map.
 /// </summary>
 [UsedImplicitly]
-internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChanged
+internal class IeButton : IInitializable, IDisposable, INotifyPropertyChanged
 {
-    private const string ResourcePath = "IntendedExperience.UI.ExcludeButton.bsml";
-    private const string ActiveText = "<color=" + MenuText.HighlightColor + ">IE</color>";
-    private const string ExcludedText = "<color=" + MenuText.DimColor + "><s>IE</s></color>";
-    private const string ActiveHint = "Click to disable IE for this map. This will be saved.";
-    private const string ExcludedHint = "Click to enable IE for this map. This will be saved.";
+    private const string ResourcePath = "IntendedExperience.UI.IeButton.bsml";
+    private const string OnText = "<color=" + MenuText.HighlightColor + ">IE</color>";
+    private const string OffText = "<color=" + MenuText.DimColor + "><s>IE</s></color>";
+    private const string OnHint = "Click to disable IE for this map. This will be saved.";
+    private const string OffHint = "Click to enable IE for this map. This will be saved.";
 
     private readonly BSMLParser bsmlParser;
     private readonly LaunchPreview launchPreview;
     private readonly StandardLevelDetailViewController levelDetailViewController;
 
-    [UIObject("exclude-button")]
-    private readonly GameObject excludeButton = null!;
+    [UIObject("ie-button")]
+    private readonly GameObject ieButton = null!;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [UIValue("button-text")]
-    public string ButtonText => launchPreview.ButtonOn ? ActiveText : ExcludedText;
+    public string ButtonText => launchPreview.ButtonOn ? OnText : OffText;
 
-    private string HintText => launchPreview.ButtonOn ? ActiveHint : ExcludedHint;
+    private string HintText => launchPreview.ButtonOn ? OnHint : OffHint;
 
-    public ExcludeButton(BSMLParser bsmlParser, LaunchPreview launchPreview,
+    public IeButton(BSMLParser bsmlParser, LaunchPreview launchPreview,
         StandardLevelDetailViewController levelDetailViewController)
     {
         this.bsmlParser = bsmlParser;
@@ -48,7 +48,7 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     {
         var levelDetailView = levelDetailViewController.GetComponentInChildren<StandardLevelDetailView>(true);
         var buttonRow = levelDetailView.actionButton.transform.parent.gameObject;
-        bsmlParser.Parse(Utilities.GetResourceContent(typeof(ExcludeButton).Assembly, ResourcePath), buttonRow, this);
+        bsmlParser.Parse(Utilities.GetResourceContent(typeof(IeButton).Assembly, ResourcePath), buttonRow, this);
         launchPreview.Changed += Refresh;
         Refresh();
     }
@@ -56,17 +56,17 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     public void Dispose() => launchPreview.Changed -= Refresh;
 
     [UsedImplicitly]
-    [UIAction("toggle-exclusion")]
-    private void ToggleExclusion() => launchPreview.ToggleButton();
+    [UIAction("toggle")]
+    private void Toggle() => launchPreview.ToggleButton();
 
     // Only shown for maps the mod can affect (GLS maps, Chroma maps and modcharts), including ranked maps whose
     // type is turned off for ranked maps.
     private void Refresh()
     {
-        if (excludeButton != null)
+        if (ieButton != null)
         {
-            excludeButton.SetActive(launchPreview.Qualifies || launchPreview.RankedTurnedOff);
-            var hoverHint = excludeButton.GetComponent<HoverHint>();
+            ieButton.SetActive(launchPreview.Qualifies || launchPreview.RankedTurnedOff);
+            var hoverHint = ieButton.GetComponent<HoverHint>();
             if (hoverHint != null)
             {
                 hoverHint.enabled = launchPreview.ShowTooltips;

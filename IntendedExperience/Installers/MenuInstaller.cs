@@ -28,7 +28,7 @@ internal class MenuInstaller : Installer
         Container.BindInterfacesTo<PlayButtonTint>().AsSingle();
         Container.BindInterfacesTo<SettingsMenu>().AsSingle();
         Container.BindInterfacesTo<MapTab>().AsSingle();
-        Container.BindInterfacesTo<ExcludeButton>().AsSingle();
+        Container.BindInterfacesTo<IeButton>().AsSingle();
 
         if (InstalledMods.Heck)
             BindHeckPlayView();
