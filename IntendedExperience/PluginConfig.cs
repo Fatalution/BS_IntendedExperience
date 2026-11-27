@@ -20,7 +20,7 @@ internal class PluginConfig
     [NonNullable]
     public virtual RuleSet Gls { get; set; } = new();
     [NonNullable]
-    public virtual RuleSet Chroma { get; set; } = new();
+    public virtual RuleSet Chroma { get; set; } = new() { ForceFullBrightness = false };
     [NonNullable]
     public virtual RuleSet Modcharts { get; set; } = new();
 
