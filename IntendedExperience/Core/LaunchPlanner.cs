@@ -91,8 +91,13 @@ internal class LaunchPlanner
 
     public bool IsRanked(MapDifficulty map) => rankedMaps.IsRanked(map);
 
-    /// <summary>The map is ranked and its type's rules are turned off for ranked maps.</summary>
-    public bool SkipsRanked(MapDifficulty map) => DetectCategory(map) is { } category && SkipsRanked(map, category);
+    /// <summary>The map is ranked and its type's rules are turned off for ranked maps, whether or not it's included.</summary>
+    public bool RankedTurnedOff(MapDifficulty map)
+    {
+        var environment = MapEnvironment(map);
+        return DetectCategory(map, environment) is { } category && RankedTurnedOff(map, category)
+               && !(category == MapCategory.Chroma && IsRankedOnTimbaland(map, environment));
+    }
 
     // The category whose rules apply, or null when IE leaves the map alone.
     private MapCategory? CategoryOf(MapDifficulty map, EnvironmentInfoSO? environment)
@@ -102,7 +107,11 @@ internal class LaunchPlanner
         return category == MapCategory.Chroma && IsRankedOnTimbaland(map, environment) ? null : category;
     }
 
+    // Ranked maps of a type turned off for ranked maps are skipped unless the player included them.
     private bool SkipsRanked(MapDifficulty map, MapCategory category) =>
+        RankedTurnedOff(map, category) && !mapExclusions.IsIncluded(map.LevelId);
+
+    private bool RankedTurnedOff(MapDifficulty map, MapCategory category) =>
         !config.RulesFor(category).ApplyToRanked && rankedMaps.IsRanked(map);
 
     // The most specific category wins: modchart, then Chroma, then GLS.

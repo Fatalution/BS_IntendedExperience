@@ -29,7 +29,9 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [UIValue("button-text")]
-    public string ButtonText => launchPreview.Excluded ? ExcludedText : ActiveText;
+    public string ButtonText => launchPreview.ButtonOn ? ActiveText : ExcludedText;
+
+    private string HintText => launchPreview.ButtonOn ? ActiveHint : ExcludedHint;
 
     public ExcludeButton(BSMLParser bsmlParser, LaunchPreview launchPreview,
         StandardLevelDetailViewController levelDetailViewController)
@@ -52,19 +54,20 @@ internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChang
 
     [UsedImplicitly]
     [UIAction("toggle-exclusion")]
-    private void ToggleExclusion() => launchPreview.SetExcluded(!launchPreview.Excluded);
+    private void ToggleExclusion() => launchPreview.ToggleButton();
 
-    // Only shown for maps the mod can affect (GLS maps, Chroma maps and modcharts).
+    // Only shown for maps the mod can affect (GLS maps, Chroma maps and modcharts), including ranked maps whose
+    // type is turned off for ranked maps.
     private void Refresh()
     {
         if (excludeButton != null)
         {
-            excludeButton.SetActive(launchPreview.Qualifies);
+            excludeButton.SetActive(launchPreview.Qualifies || launchPreview.RankedTurnedOff);
             var hoverHint = excludeButton.GetComponent<HoverHint>();
             if (hoverHint != null)
             {
                 hoverHint.enabled = launchPreview.ShowTooltips;
-                hoverHint.text = launchPreview.Excluded ? ExcludedHint : ActiveHint;
+                hoverHint.text = HintText;
             }
         }
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonText)));

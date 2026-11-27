@@ -36,6 +36,9 @@ internal class PluginConfig
     // ---- Exclusions ----
     [NonNullable, UseConverter(typeof(ListConverter<string>))]
     public virtual List<string> ExcludedLevelIds { get; set; } = new();
+    // Ranked maps IE still applies to while their type is turned off for ranked maps.
+    [NonNullable, UseConverter(typeof(ListConverter<string>))]
+    public virtual List<string> IncludedLevelIds { get; set; } = new();
 
     /// <summary>Saves the config; called after in-place changes BSIPA can't detect (list edits).</summary>
     public virtual void Changed() { }
