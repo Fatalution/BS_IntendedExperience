@@ -18,12 +18,12 @@
                         hover-hint="Sets environment effects to All Effects."/>
         <toggle-setting text="Use Map Environment" value="force-map-environment" bind-value="true" apply-on-change="true"
                         hover-hint="Turns off your environment override, so the map plays in the environment it was made for."/>
-        <toggle-setting text="Set Effects Brightness to 100%" value="force-full-brightness" bind-value="true" apply-on-change="true"
-                        interactable="~beat-saber-plus-available"
-                        hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
         <toggle-setting id="colors-toggle" text="Use Intended Colors" value="force-intended-colors" bind-value="true" apply-on-change="true"
                         interactable="~colors-interactable"
                         hover-hint="~colors-hint"/>
+        <toggle-setting text="Set Effects Brightness to 100%" value="force-full-brightness" bind-value="true" apply-on-change="true"
+                        interactable="~beat-saber-plus-available"
+                        hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
 
         <horizontal pref-height="3"/>
         <toggle-setting text="Apply to replays" value="apply-to-replays" apply-on-change="true"
