@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace IntendedExperience.Core;
 
+/// <summary>What IE makes of one map, whatever the player's settings.</summary>
+/// <param name="Category">The map's type; null for a legacy map.</param>
+/// <param name="Ranked">The map is ranked on ScoreSaber or BeatLeader.</param>
+/// <param name="RankedTurnedOff">The map is ranked and its type is turned off for ranked maps, included or not.</param>
+/// <param name="Qualifies">IE applies its rules to the map (exclusions aside).</param>
+internal readonly record struct MapStatus(MapCategory? Category, bool Ranked, bool RankedTurnedOff, bool Qualifies);
+
 /// <summary>Decides which settings a launch must override to show a map as intended.</summary>
 [UsedImplicitly]
 internal class LaunchPlanner
@@ -20,6 +27,10 @@ internal class LaunchPlanner
 #if !GAME_1_29
     private readonly EnvironmentsListModel environmentsListModel;
 #endif
+
+    // The menu plans every frame; a map's data only needs reading when the selected difficulty changes.
+    private MapDifficulty? cachedMap;
+    private MapData cachedData;
 
 #if GAME_1_29
     public LaunchPlanner(PluginConfig config, MapExclusions mapExclusions, SongCoreColors songCoreColors,
@@ -50,13 +61,14 @@ internal class LaunchPlanner
         if (!config.Enabled || mapExclusions.IsExcluded(map.LevelId))
             return default;
 
-        var environment = MapEnvironment(map);
-        if (CategoryOf(map, environment) is not { } category)
+        var status = Status(map);
+        if (!status.Qualifies || status.Category is not { } category)
             return default;
 
+        var data = DataOf(map);
         var rules = config.RulesFor(category);
         var currentEffects = settings.PlayerSpecificSettings.GetEnvironmentEffectsFilterPreset(map.Difficulty);
-        var environmentOverride = ActiveEnvironmentOverride(environment, settings.OverrideEnvironmentSettings);
+        var environmentOverride = ActiveEnvironmentOverride(data.Environment, settings.OverrideEnvironmentSettings);
         float currentBrightness = beatSaberPlusLights.EffectiveBrightness;
 
         // Settings the map's Settings Setter sets are the mapper's call, so IE leaves them alone.
@@ -65,54 +77,50 @@ internal class LaunchPlanner
         // Chroma maps color their own lights, so the player's color override doesn't matter there.
         bool manageColors = rules.ForceIntendedColors && category != MapCategory.Chroma;
 
-        // With both environment color pairs from the map (turned on through SongCore below), the player's
-        // "All" override can't reach the lights, so Notes Only isn't needed.
-        bool mapColorsCoverEffects = SongCoreColors.HasFullEffectColors(map);
-
         return new LaunchPlan(
             EnableAllEffects: rules.ForceAllEffects
                               && currentEffects != EnvironmentEffectsFilterPreset.AllEffects
                               && !setterControls.EnvironmentEffects,
             UseMapEnvironment: rules.ForceMapEnvironment && environmentOverride != null && !setterControls.Environment,
-            UseNotesOnlyColors: manageColors && settings.OverridesLightColors && !setterControls.Colors && !mapColorsCoverEffects,
-            EnableMapEffectColors: manageColors && !songCoreColors.EnvironmentColorsEnabled && SongCoreColors.HasEffectColors(map),
+            // With both environment color pairs from the map (turned on through SongCore below), the player's
+            // "All" override can't reach the lights, so Notes Only isn't needed.
+            UseNotesOnlyColors: manageColors && settings.OverridesLightColors && !setterControls.Colors
+                                && !data.HasFullEffectColors,
+            EnableMapEffectColors: manageColors && !songCoreColors.EnvironmentColorsEnabled && data.HasEffectColors,
             SetFullBrightness: rules.ForceFullBrightness && !Mathf.Approximately(currentBrightness, 1f),
             CurrentEffects: currentEffects,
             CurrentEnvironment: environmentOverride?.environmentName,
-            MapEnvironment: environment?.environmentName,
+            MapEnvironment: data.Environment?.environmentName,
             CurrentBrightness: currentBrightness);
     }
 
-    /// <summary>The map is one IE handles: a GLS (v3+) map, a Chroma map or a modchart.</summary>
-    public bool Qualifies(MapDifficulty map) => CategoryOf(map, MapEnvironment(map)) != null;
-
-    /// <summary>What kind of map this is, even when IE leaves it alone; null for a legacy map.</summary>
-    public MapCategory? DetectCategory(MapDifficulty map) => DetectCategory(map, MapEnvironment(map));
-
-    public bool IsRanked(MapDifficulty map) => rankedMaps.IsRanked(map);
-
-    /// <summary>The map is ranked and its type's rules are turned off for ranked maps, whether or not it's included.</summary>
-    public bool RankedTurnedOff(MapDifficulty map)
+    public MapStatus Status(MapDifficulty map)
     {
-        var environment = MapEnvironment(map);
-        return DetectCategory(map, environment) is { } category && RankedTurnedOff(map, category)
-               && !(category == MapCategory.Chroma && IsRankedOnTimbaland(map, environment));
+        var data = DataOf(map);
+        bool ranked = rankedMaps.IsRanked(map);
+        if (data.Category is not { } category)
+            return new MapStatus(null, ranked, false, false);
+
+        // Ranked Chroma maps on Timbaland tend to be blinding with all effects on, so IE leaves them alone.
+        if (ranked && category == MapCategory.Chroma && data.Environment?.serializedName == TimbalandEnvironment)
+            return new MapStatus(category, ranked, false, false);
+
+        // Ranked maps of a type turned off for ranked maps are skipped unless the player included them.
+        bool rankedTurnedOff = ranked && !config.RulesFor(category).ApplyToRanked;
+        return new MapStatus(category, ranked, rankedTurnedOff, !rankedTurnedOff || mapExclusions.IsIncluded(map.LevelId));
     }
 
-    // The category whose rules apply, or null when IE leaves the map alone.
-    private MapCategory? CategoryOf(MapDifficulty map, EnvironmentInfoSO? environment)
+    private MapData DataOf(MapDifficulty map)
     {
-        if (DetectCategory(map, environment) is not { } category || SkipsRanked(map, category))
-            return null;
-        return category == MapCategory.Chroma && IsRankedOnTimbaland(map, environment) ? null : category;
+        if (cachedMap != map)
+        {
+            var environment = MapEnvironment(map);
+            cachedData = new MapData(environment, DetectCategory(map, environment),
+                SongCoreColors.HasEffectColors(map), SongCoreColors.HasFullEffectColors(map));
+            cachedMap = map;
+        }
+        return cachedData;
     }
-
-    // Ranked maps of a type turned off for ranked maps are skipped unless the player included them.
-    private bool SkipsRanked(MapDifficulty map, MapCategory category) =>
-        RankedTurnedOff(map, category) && !mapExclusions.IsIncluded(map.LevelId);
-
-    private bool RankedTurnedOff(MapDifficulty map, MapCategory category) =>
-        !config.RulesFor(category).ApplyToRanked && rankedMaps.IsRanked(map);
 
     // The most specific category wins: modchart, then Chroma, then GLS.
     private static MapCategory? DetectCategory(MapDifficulty map, EnvironmentInfoSO? environment)
@@ -123,10 +131,6 @@ internal class LaunchPlanner
             return MapCategory.Chroma;
         return UsesGroupLighting(environment) ? MapCategory.Gls : null;
     }
-
-    // Ranked Chroma maps on Timbaland tend to be blinding with all effects on, so IE leaves them alone.
-    private bool IsRankedOnTimbaland(MapDifficulty map, EnvironmentInfoSO? environment) =>
-        environment != null && environment.serializedName == TimbalandEnvironment && rankedMaps.IsRanked(map);
 
     // Only group-lighting (v3+) environments, i.e. Weave and newer, define light groups.
     private static bool UsesGroupLighting(EnvironmentInfoSO? environment)
@@ -161,4 +165,8 @@ internal class LaunchPlanner
         var overridden = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environment.environmentType);
         return overridden != null && overridden.environmentName != environment.environmentName ? overridden : null;
     }
+
+    /// <summary>A map's data that never changes while the game runs.</summary>
+    private readonly record struct MapData(EnvironmentInfoSO? Environment, MapCategory? Category, bool HasEffectColors,
+        bool HasFullEffectColors);
 }

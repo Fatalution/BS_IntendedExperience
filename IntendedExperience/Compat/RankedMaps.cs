@@ -15,8 +15,11 @@ namespace IntendedExperience.Compat;
 [UsedImplicitly]
 internal class RankedMaps : IInitializable
 {
-    private const string CustomLevelPrefix = "custom_level_";
     private const int HashLength = 40;
+
+    // The menu asks every frame; once the data is loaded, the answer for a map doesn't change.
+    private string? cachedLevelId;
+    private bool cachedRanked;
 
     public void Initialize()
     {
@@ -26,16 +29,26 @@ internal class RankedMaps : IInitializable
 
     public bool IsRanked(MapDifficulty map)
     {
-        if (!InstalledMods.SongDetailsCache || !map.LevelId.StartsWith(CustomLevelPrefix, StringComparison.Ordinal))
+        if (!InstalledMods.SongDetailsCache)
             return false;
+        if (map.LevelId == cachedLevelId)
+            return cachedRanked;
 
-        string hash = map.LevelId.Substring(CustomLevelPrefix.Length);
-        return hash.Length == HashLength && IsRankedHash(hash);
+        bool ranked = CustomLevels.HashOf(map.LevelId) is { Length: HashLength } hash && IsRankedHash(hash);
+        if (IsLoaded())
+        {
+            cachedLevelId = map.LevelId;
+            cachedRanked = ranked;
+        }
+        return ranked;
     }
 
-    // The two methods below are kept separate so SongDetailsCache's types are only loaded when it's installed.
+    // The methods below are kept separate so SongDetailsCache's types are only loaded when it's installed.
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static void LoadSongDetails() => SongDetailsLookup.Load();
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static bool IsLoaded() => SongDetailsLookup.IsLoaded;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static bool IsRankedHash(string hash) => SongDetailsLookup.IsRanked(hash);
@@ -45,6 +58,8 @@ internal class RankedMaps : IInitializable
         private const RankedStates Ranked = RankedStates.ScoresaberRanked | RankedStates.BeatleaderRanked;
 
         private static SongDetails? songDetails;
+
+        public static bool IsLoaded => songDetails != null;
 
         // Other mods load the same shared data, so this is usually instant.
         public static async void Load()

@@ -16,37 +16,39 @@ internal class LaunchPreview : ITickable
     private readonly SettingsSetterPrompt settingsSetterPrompt;
     private readonly PluginConfig config;
 
+    private MapStatus status;
+
     public event Action? Changed;
 
     public MapDifficulty? Map { get; private set; }
     public LaunchPlan Plan { get; private set; }
     public bool Excluded { get; private set; }
 
-    /// <summary>The selected map's type; null for a legacy map.</summary>
-    public MapCategory? Category { get; private set; }
-
-    /// <summary>The selected map is ranked on ScoreSaber or BeatLeader.</summary>
-    public bool Ranked { get; private set; }
-
-    /// <summary>The selected map is ranked and its type's rules are turned off for ranked maps.</summary>
-    public bool RankedTurnedOff { get; private set; }
-
     /// <summary>The player kept IE on for the selected ranked map with the IE button.</summary>
     public bool Included { get; private set; }
+
+    /// <summary>The changes will be listed in Heck's Settings Setter window when Play is pressed.</summary>
+    public bool ShownInSettingsSetter { get; private set; }
+
+    public bool ShowTooltips { get; private set; }
+
+    /// <summary>The selected map's type; null for a legacy map.</summary>
+    public MapCategory? Category => status.Category;
+
+    /// <summary>The selected map is ranked on ScoreSaber or BeatLeader.</summary>
+    public bool Ranked => status.Ranked;
+
+    /// <summary>The selected map is ranked and its type's rules are turned off for ranked maps.</summary>
+    public bool RankedTurnedOff => status.RankedTurnedOff;
+
+    /// <summary>The selected map is one IE applies its rules to (exclusions aside).</summary>
+    public bool Qualifies => status.Qualifies;
 
     /// <summary>The selected map is left alone because its type's rules are turned off for ranked maps.</summary>
     public bool SkippedRanked => RankedTurnedOff && !Included;
 
     /// <summary>The IE button is on: IE isn't turned off for the selected map by the player.</summary>
     public bool ButtonOn => RankedTurnedOff ? Included && !Excluded : !Excluded;
-
-    /// <summary>The selected map is a GLS map, Chroma map or modchart, so the mod can affect it.</summary>
-    public bool Qualifies { get; private set; }
-
-    /// <summary>The changes will be listed in Heck's Settings Setter window when Play is pressed.</summary>
-    public bool ShownInSettingsSetter { get; private set; }
-
-    public bool ShowTooltips { get; private set; }
 
     public LaunchPreview(StandardLevelDetailViewController levelDetailViewController, PlayerDataModel playerDataModel,
         LaunchPlanner launchPlanner, MapExclusions mapExclusions, SettingsSetterPrompt settingsSetterPrompt,
@@ -68,34 +70,26 @@ internal class LaunchPreview : ITickable
 
         var map = SelectedMap();
         LaunchPlan plan = default;
-        MapCategory? category = null;
-        bool excluded = false, ranked = false, rankedTurnedOff = false, included = false, qualifies = false;
-        bool shownInSettingsSetter = false;
+        MapStatus mapStatus = default;
+        bool excluded = false, included = false, shownInSettingsSetter = false;
         if (map is { } selected)
         {
             plan = launchPlanner.Plan(selected, LaunchSettings.FromPlayerData(playerDataModel.playerData));
+            mapStatus = launchPlanner.Status(selected);
             excluded = mapExclusions.IsExcluded(selected.LevelId);
-            category = launchPlanner.DetectCategory(selected);
-            ranked = launchPlanner.IsRanked(selected);
-            rankedTurnedOff = launchPlanner.RankedTurnedOff(selected);
             included = mapExclusions.IsIncluded(selected.LevelId);
-            qualifies = launchPlanner.Qualifies(selected);
             shownInSettingsSetter = settingsSetterPrompt.WillShowChangesFor(selected);
         }
         bool showTooltips = config.ShowTooltips;
-        if (map == Map && plan == Plan && excluded == Excluded && category == Category && ranked == Ranked
-            && rankedTurnedOff == RankedTurnedOff && included == Included && qualifies == Qualifies
+        if (map == Map && plan == Plan && mapStatus == status && excluded == Excluded && included == Included
             && shownInSettingsSetter == ShownInSettingsSetter && showTooltips == ShowTooltips)
             return;
 
         Map = map;
         Plan = plan;
+        status = mapStatus;
         Excluded = excluded;
-        Category = category;
-        Ranked = ranked;
-        RankedTurnedOff = rankedTurnedOff;
         Included = included;
-        Qualifies = qualifies;
         ShownInSettingsSetter = shownInSettingsSetter;
         ShowTooltips = showTooltips;
         Changed?.Invoke();
