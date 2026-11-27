@@ -34,6 +34,10 @@ Chroma maps only count as Chroma maps when Chroma is installed.
 
 The maps you excluded with the IE button. Remove one to let IE handle it again, or clear them all.
 
+### Included ranked maps
+
+Ranked maps you turned IE on for with the IE button while their type is turned off for ranked maps. Remove one to skip it again, or clear them all.
+
 ## In game
 
 - **Orange Play button:** IE will change something for this map. Hover over it to see what.

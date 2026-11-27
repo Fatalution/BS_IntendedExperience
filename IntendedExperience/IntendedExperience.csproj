@@ -35,7 +35,7 @@
         <EmbeddedResource Include="UI\SettingsMenu.bsml"/>
         <EmbeddedResource Include="UI\MapTab.bsml"/>
         <EmbeddedResource Include="UI\IeButton.bsml"/>
-        <EmbeddedResource Include="UI\ExcludedMapRow.bsml"/>
+        <EmbeddedResource Include="UI\MapRow.bsml"/>
         <EmbeddedResource Include="UI\IntendedChangesView.bsml"/>
         <EmbeddedResource Include="UI\IntendedChangesContent.bsml"/>
     </ItemGroup>

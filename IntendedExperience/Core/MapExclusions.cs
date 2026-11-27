@@ -15,7 +15,8 @@ internal class MapExclusions
 
     public event Action? Changed;
 
-    public IReadOnlyList<string> LevelIds => config.ExcludedLevelIds;
+    public IReadOnlyList<string> ExcludedLevelIds => config.ExcludedLevelIds;
+    public IReadOnlyList<string> IncludedLevelIds => config.IncludedLevelIds;
 
     public MapExclusions(PluginConfig config)
     {
@@ -42,9 +43,13 @@ internal class MapExclusions
             Save();
     }
 
-    public void Clear()
+    public void ClearExcluded() => ClearList(config.ExcludedLevelIds);
+
+    public void ClearIncluded() => ClearList(config.IncludedLevelIds);
+
+    private void ClearList(List<string> levelIds)
     {
-        config.ExcludedLevelIds.Clear();
+        levelIds.Clear();
         Save();
     }
 

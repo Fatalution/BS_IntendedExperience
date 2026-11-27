@@ -54,6 +54,17 @@
         </horizontal>
         <vertical id="excluded-rows" spacing="1" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
                   child-control-width="true" child-expand-width="true"/>
+
+        <horizontal pref-height="3"/>
+        <horizontal pref-height="8" spacing="2" child-control-width="true" child-expand-width="false">
+            <horizontal pref-width="0" flexible-width="1" child-control-width="true" child-expand-width="true">
+                <text text="~inclusions-text" font-size="4" color="#AAAAAA" align="Left" word-wrapping="false"/>
+            </horizontal>
+            <button text="Clear all" min-width="18" pref-width="18" pref-height="6" on-click="clear-inclusions"
+                    hover-hint="Remove every map from the included list."/>
+        </horizontal>
+        <vertical id="included-rows" spacing="1" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
+                  child-control-width="true" child-expand-width="true"/>
     </vertical>
 
     <!-- Footer: three equal columns keep the credit centred with the version at the right edge. -->
