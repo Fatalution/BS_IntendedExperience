@@ -32,9 +32,16 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     // ---- Map type switch: cells in MapCategory order ----
     private static readonly List<object> CategoryNames = new() { "GLS Maps", "Modcharts", "Chroma Maps" };
+    private static readonly string[] RankedHints =
+    {
+        "Applies IE to ranked GLS maps. Requires SongDetailsCache.",
+        "Applies IE to ranked modcharts. Requires SongDetailsCache.",
+        "Applies IE to ranked Chroma maps. Requires SongDetailsCache."
+    };
     private static readonly string[] RuleProperties =
     {
-        nameof(ForceAllEffects), nameof(ForceIntendedColors), nameof(ForceMapEnvironment), nameof(ForceFullBrightness)
+        nameof(ApplyToRanked), nameof(ForceAllEffects), nameof(ForceIntendedColors), nameof(ForceMapEnvironment),
+        nameof(ForceFullBrightness)
     };
 
     // ---- Services ----
@@ -51,6 +58,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // ---- Parsed objects ----
     [UIObject("settings-body")]
     private readonly GameObject settingsBody = null!;
+    [UIObject("ranked-toggle")]
+    private readonly GameObject rankedToggle = null!;
     [UIObject("colors-toggle")]
     private readonly GameObject colorsToggle = null!;
     [UIObject("excluded-rows")]
@@ -71,6 +80,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // ---- Rules of the map type picked in the switch ----
     [UIValue("categories")]
     public List<object> Categories => CategoryNames;
+
+    [UIValue("apply-to-ranked")]
+    public bool ApplyToRanked { get => SelectedRules.ApplyToRanked; set => SelectedRules.ApplyToRanked = value; }
 
     [UIValue("force-all-effects")]
     public bool ForceAllEffects { get => SelectedRules.ForceAllEffects; set => SelectedRules.ForceAllEffects = value; }
@@ -110,6 +122,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     [UIValue("multiplayer-plus-available")]
     public bool MultiplayerPlusAvailable => InstalledMods.MultiplayerPlus;
+
+    [UIValue("song-details-cache-available")]
+    public bool SongDetailsCacheAvailable => InstalledMods.SongDetailsCache;
 
     // ---- Exclusions ----
     [UIValue("exclusions-text")]
@@ -159,6 +174,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private void PostParse()
     {
         UpdateBodyVisibility();
+        UpdateRankedHint();
         UpdateColorsToggle();
         OnExclusionsChanged();
     }
@@ -185,7 +201,16 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         selectedCategory = (MapCategory)index;
         foreach (string property in RuleProperties)
             NotifyChanged(property);
+        UpdateRankedHint();
         UpdateColorsToggle();
+    }
+
+    // The ranked toggle's hint names the picked map type.
+    private void UpdateRankedHint()
+    {
+        var hoverHint = rankedToggle == null ? null : rankedToggle.GetComponentInChildren<HoverHint>(true);
+        if (hoverHint != null)
+            hoverHint.text = RankedHints[(int)selectedCategory];
     }
 
     // Chroma maps color their own lights. The toggle is made invisible rather than removed, so the list keeps its height.

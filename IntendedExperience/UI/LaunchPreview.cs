@@ -28,6 +28,9 @@ internal class LaunchPreview : ITickable
     /// <summary>The selected map is ranked on ScoreSaber or BeatLeader.</summary>
     public bool Ranked { get; private set; }
 
+    /// <summary>The selected map is left alone because its type's rules are turned off for ranked maps.</summary>
+    public bool SkippedRanked { get; private set; }
+
     /// <summary>The selected map is a GLS map, Chroma map or modchart, so the mod can affect it.</summary>
     public bool Qualifies { get; private set; }
 
@@ -57,19 +60,20 @@ internal class LaunchPreview : ITickable
         var map = SelectedMap();
         LaunchPlan plan = default;
         MapCategory? category = null;
-        bool excluded = false, ranked = false, qualifies = false, shownInSettingsSetter = false;
+        bool excluded = false, ranked = false, skippedRanked = false, qualifies = false, shownInSettingsSetter = false;
         if (map is { } selected)
         {
             plan = launchPlanner.Plan(selected, LaunchSettings.FromPlayerData(playerDataModel.playerData));
             excluded = mapExclusions.IsExcluded(selected.LevelId);
             category = launchPlanner.DetectCategory(selected);
             ranked = launchPlanner.IsRanked(selected);
+            skippedRanked = launchPlanner.SkipsRanked(selected);
             qualifies = launchPlanner.Qualifies(selected);
             shownInSettingsSetter = settingsSetterPrompt.WillShowChangesFor(selected);
         }
         bool showTooltips = config.ShowTooltips;
         if (map == Map && plan == Plan && excluded == Excluded && category == Category && ranked == Ranked
-            && qualifies == Qualifies && shownInSettingsSetter == ShownInSettingsSetter && showTooltips == ShowTooltips)
+            && skippedRanked == SkippedRanked && qualifies == Qualifies && shownInSettingsSetter == ShownInSettingsSetter && showTooltips == ShowTooltips)
             return;
 
         Map = map;
@@ -77,6 +81,7 @@ internal class LaunchPreview : ITickable
         Excluded = excluded;
         Category = category;
         Ranked = ranked;
+        SkippedRanked = skippedRanked;
         Qualifies = qualifies;
         ShownInSettingsSetter = shownInSettingsSetter;
         ShowTooltips = showTooltips;

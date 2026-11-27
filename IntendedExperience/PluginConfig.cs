@@ -51,6 +51,7 @@ internal class PluginConfig
 /// <summary>The rules applied to one type of map. Chroma maps color their own lights, so they ignore the colors rule.</summary>
 internal class RuleSet
 {
+    public virtual bool ApplyToRanked { get; set; } = true;
     public virtual bool ForceAllEffects { get; set; } = true;
     public virtual bool ForceIntendedColors { get; set; } = true;
     public virtual bool ForceMapEnvironment { get; set; } = true;

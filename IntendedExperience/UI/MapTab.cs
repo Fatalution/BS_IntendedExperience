@@ -57,7 +57,7 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
                 MapCategory.Chroma => "Chroma",
                 _ => "Legacy"
             };
-            return launchPreview.Ranked ? $"<b>{type}</b> · <color=#FFD54F>Ranked</color>" : $"<b>{type}</b>";
+            return launchPreview.Ranked ? $"<b>{type}</b> · {RankedText.Title}" : $"<b>{type}</b>";
         }
     }
 
@@ -71,6 +71,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
                 return "";
             if (!masterSwitch.Enabled)
                 return "Intended Experience is turned off.";
+            if (launchPreview.SkippedRanked)
+                return $"Turned off for {RankedText.Lower} {RankedMapsText} in settings.";
             if (!launchPreview.Qualifies)
                 return NothingToChangeText;
             if (launchPreview.Excluded)
@@ -84,6 +86,14 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
 
     [UIValue("changes-text")]
     public string ChangesText => AppliesChanges ? launchPreview.Plan.DescribeChanges() : "";
+
+    // The selected map's type as it follows "ranked".
+    private string RankedMapsText => launchPreview.Category switch
+    {
+        MapCategory.Modcharts => "modcharts",
+        MapCategory.Chroma => "Chroma maps",
+        _ => "GLS maps"
+    };
 
     private bool AppliesChanges => launchPreview.Map != null && masterSwitch.Enabled && launchPreview.Qualifies
                                    && !launchPreview.Excluded && !launchPreview.Plan.IsEmpty;

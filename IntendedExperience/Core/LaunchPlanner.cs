@@ -91,12 +91,19 @@ internal class LaunchPlanner
 
     public bool IsRanked(MapDifficulty map) => rankedMaps.IsRanked(map);
 
+    /// <summary>The map is ranked and its type's rules are turned off for ranked maps.</summary>
+    public bool SkipsRanked(MapDifficulty map) => DetectCategory(map) is { } category && SkipsRanked(map, category);
+
     // The category whose rules apply, or null when IE leaves the map alone.
     private MapCategory? CategoryOf(MapDifficulty map, EnvironmentInfoSO? environment)
     {
-        var category = DetectCategory(map, environment);
+        if (DetectCategory(map, environment) is not { } category || SkipsRanked(map, category))
+            return null;
         return category == MapCategory.Chroma && IsRankedOnTimbaland(map, environment) ? null : category;
     }
+
+    private bool SkipsRanked(MapDifficulty map, MapCategory category) =>
+        !config.RulesFor(category).ApplyToRanked && rankedMaps.IsRanked(map);
 
     // The most specific category wins: modchart, then Chroma, then GLS.
     private static MapCategory? DetectCategory(MapDifficulty map, EnvironmentInfoSO? environment)
