@@ -6,7 +6,7 @@
     <vertical id="settings-body" vertical-fit="PreferredSize" horizontal-fit="Unconstrained"
               child-control-width="true" child-expand-width="true">
         <!-- Gap before each section. One set of toggles for the map type picked above them; the colors toggle
-             is last because it's hidden for Chroma maps, which color their own lights. -->
+             is greyed out for Chroma maps, which color their own lights. -->
         <horizontal pref-height="1"/>
         <horizontal pref-height="8" child-control-width="true" child-expand-width="true">
             <text-segments contents="categories" select-cell="select-category"/>
@@ -22,6 +22,7 @@
                         interactable="~beat-saber-plus-available"
                         hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
         <toggle-setting id="colors-toggle" text="Use Intended Colors" value="force-intended-colors" bind-value="true" apply-on-change="true"
+                        interactable="~colors-interactable"
                         hover-hint="Sets color override to Notes Only and uses the correct color scheme for the environment, or the map's own SongCore color scheme if it has one."/>
 
         <horizontal pref-height="3"/>

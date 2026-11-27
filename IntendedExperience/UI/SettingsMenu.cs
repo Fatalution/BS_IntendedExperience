@@ -30,6 +30,11 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private const string RowResourcePath = "IntendedExperience.UI.ExcludedMapRow.bsml";
     private const string CustomLevelPrefix = "custom_level_";
 
+    // ---- Colors toggle hints ----
+    private const string ColorsHint = "Sets color override to Notes Only and uses the correct color scheme for the environment, "
+                                      + "or the map's own SongCore color scheme if it has one.";
+    private const string ChromaColorsHint = "Chroma maps force their own event colors anyway.";
+
     // ---- Map type switch: cells in MapCategory order ----
     private static readonly List<object> CategoryNames = new() { "GLS Maps", "Modcharts", "Chroma Maps" };
     private static readonly string[] RankedHints =
@@ -41,7 +46,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private static readonly string[] RuleProperties =
     {
         nameof(ApplyToRanked), nameof(ForceAllEffects), nameof(ForceIntendedColors), nameof(ForceMapEnvironment),
-        nameof(ForceFullBrightness)
+        nameof(ForceFullBrightness), nameof(ColorsInteractable)
     };
 
     // ---- Services ----
@@ -87,8 +92,20 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("force-all-effects")]
     public bool ForceAllEffects { get => SelectedRules.ForceAllEffects; set => SelectedRules.ForceAllEffects = value; }
 
+    // Shown on and greyed out for Chroma maps, which color their own lights.
     [UIValue("force-intended-colors")]
-    public bool ForceIntendedColors { get => SelectedRules.ForceIntendedColors; set => SelectedRules.ForceIntendedColors = value; }
+    public bool ForceIntendedColors
+    {
+        get => !ColorsInteractable || SelectedRules.ForceIntendedColors;
+        set
+        {
+            if (ColorsInteractable)
+                SelectedRules.ForceIntendedColors = value;
+        }
+    }
+
+    [UIValue("colors-interactable")]
+    public bool ColorsInteractable => selectedCategory != MapCategory.Chroma;
 
     [UIValue("force-map-environment")]
     public bool ForceMapEnvironment { get => SelectedRules.ForceMapEnvironment; set => SelectedRules.ForceMapEnvironment = value; }
@@ -174,8 +191,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private void PostParse()
     {
         UpdateBodyVisibility();
-        UpdateRankedHint();
-        UpdateColorsToggle();
+        UpdateHints();
         OnExclusionsChanged();
     }
 
@@ -201,31 +217,21 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         selectedCategory = (MapCategory)index;
         foreach (string property in RuleProperties)
             NotifyChanged(property);
-        UpdateRankedHint();
-        UpdateColorsToggle();
+        UpdateHints();
     }
 
-    // The ranked toggle's hint names the picked map type.
-    private void UpdateRankedHint()
+    // Hints that depend on the picked map type.
+    private void UpdateHints()
     {
-        var hoverHint = rankedToggle == null ? null : rankedToggle.GetComponentInChildren<HoverHint>(true);
+        SetHoverHint(rankedToggle, RankedHints[(int)selectedCategory]);
+        SetHoverHint(colorsToggle, ColorsInteractable ? ColorsHint : ChromaColorsHint);
+    }
+
+    private static void SetHoverHint(GameObject? setting, string text)
+    {
+        var hoverHint = setting == null ? null : setting.GetComponentInChildren<HoverHint>(true);
         if (hoverHint != null)
-            hoverHint.text = RankedHints[(int)selectedCategory];
-    }
-
-    // Chroma maps color their own lights. The toggle is made invisible rather than removed, so the list keeps its height.
-    private void UpdateColorsToggle()
-    {
-        if (colorsToggle == null)
-            return;
-
-        bool shown = selectedCategory != MapCategory.Chroma;
-        var canvasGroup = colorsToggle.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-            canvasGroup = colorsToggle.AddComponent<CanvasGroup>();
-        canvasGroup.alpha = shown ? 1f : 0f;
-        canvasGroup.interactable = shown;
-        canvasGroup.blocksRaycasts = shown;
+            hoverHint.text = text;
     }
 
     [UsedImplicitly]
