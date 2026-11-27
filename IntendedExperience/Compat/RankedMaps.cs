@@ -43,12 +43,19 @@ internal class RankedMaps : IInitializable
         return ranked;
     }
 
+    /// <summary>The map is a custom map whose ranked state isn't known yet: SongDetailsCache is still loading.</summary>
+    public bool IsPending(MapDifficulty map) =>
+        InstalledMods.SongDetailsCache && IsLoading() && CustomLevels.HashOf(map.LevelId) is { Length: HashLength };
+
     // The methods below are kept separate so SongDetailsCache's types are only loaded when it's installed.
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static void LoadSongDetails() => SongDetailsLookup.Load();
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static bool IsLoaded() => SongDetailsLookup.IsLoaded;
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static bool IsLoading() => SongDetailsLookup.IsLoading;
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static bool IsRankedHash(string hash) => SongDetailsLookup.IsRanked(hash);
@@ -61,9 +68,12 @@ internal class RankedMaps : IInitializable
 
         public static bool IsLoaded => songDetails != null;
 
+        public static bool IsLoading { get; private set; }
+
         // Other mods load the same shared data, so this is usually instant.
         public static async void Load()
         {
+            IsLoading = true;
             try
             {
                 songDetails = await SongDetails.Init();
@@ -71,6 +81,10 @@ internal class RankedMaps : IInitializable
             catch (Exception ex)
             {
                 Plugin.Log.Warn($"Couldn't load SongDetailsCache; ranked maps won't be recognized: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

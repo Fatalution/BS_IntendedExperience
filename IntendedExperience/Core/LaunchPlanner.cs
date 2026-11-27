@@ -101,13 +101,16 @@ internal class LaunchPlanner
         if (data.Category is not { } category)
             return new MapStatus(null, ranked, false, false);
 
+        // Until SongDetailsCache has loaded, a custom map might be ranked, so the ranked skips below apply to it too.
+        bool mayBeRanked = ranked || rankedMaps.IsPending(map);
+
         // Ranked Chroma maps on Timbaland tend to be blinding with all effects on, so IE leaves them alone.
-        if (ranked && category == MapCategory.Chroma && data.Environment?.serializedName == TimbalandEnvironment)
+        if (mayBeRanked && category == MapCategory.Chroma && data.Environment?.serializedName == TimbalandEnvironment)
             return new MapStatus(category, ranked, false, false);
 
         // Ranked maps of a type turned off for ranked maps are skipped unless the player included them.
-        bool rankedTurnedOff = ranked && !config.RulesFor(category).ApplyToRanked;
-        return new MapStatus(category, ranked, rankedTurnedOff, !rankedTurnedOff || mapExclusions.IsIncluded(map.LevelId));
+        bool turnedOff = mayBeRanked && !config.RulesFor(category).ApplyToRanked;
+        return new MapStatus(category, ranked, ranked && turnedOff, !turnedOff || mapExclusions.IsIncluded(map.LevelId));
     }
 
     private MapData DataOf(MapDifficulty map)
