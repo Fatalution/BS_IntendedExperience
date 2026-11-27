@@ -2,7 +2,7 @@ using IntendedExperience.Core;
 
 namespace IntendedExperience.UI;
 
-/// <summary>Colors and wording shared by IE's menu texts. Hover hints stay plain: they're on a white background.</summary>
+/// <summary>Colors and wording shared by IE's menu texts, not hover hints (white background).</summary>
 internal static class MenuText
 {
     // ---- Colors ----

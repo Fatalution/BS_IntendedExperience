@@ -30,8 +30,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     private const string RowResourcePath = "IntendedExperience.UI.ExcludedMapRow.bsml";
 
     // ---- Colors toggle hints ----
-    private const string ColorsHint = "Sets color override to Notes Only and uses the correct color scheme for the environment, "
-                                      + "or the map's own SongCore color scheme if it has one.";
+    private const string IntendedColorsHint = "Sets color override to Notes Only and uses the correct color scheme for the "
+                                              + "environment, or the map's own SongCore color scheme if it has one.";
     private const string ChromaColorsHint = "Chroma maps force their own event colors anyway.";
 
     // ---- Map type switch: cells in MapCategory order ----
@@ -86,6 +86,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     [UIValue("apply-to-ranked")]
     public bool ApplyToRanked { get => SelectedRules.ApplyToRanked; set => SelectedRules.ApplyToRanked = value; }
 
+    [UIValue("ranked-hint")]
+    public string RankedHint => $"Applies IE to ranked {MenuText.MapsName(selectedCategory)}. Requires SongDetailsCache.";
+
     [UIValue("force-all-effects")]
     public bool ForceAllEffects { get => SelectedRules.ForceAllEffects; set => SelectedRules.ForceAllEffects = value; }
 
@@ -103,6 +106,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     [UIValue("colors-interactable")]
     public bool ColorsInteractable => selectedCategory != MapCategory.Chroma;
+
+    [UIValue("colors-hint")]
+    public string ColorsHint => ColorsInteractable ? IntendedColorsHint : ChromaColorsHint;
 
     [UIValue("force-map-environment")]
     public bool ForceMapEnvironment { get => SelectedRules.ForceMapEnvironment; set => SelectedRules.ForceMapEnvironment = value; }
@@ -220,8 +226,8 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // Hints that depend on the picked map type.
     private void UpdateHints()
     {
-        SetHoverHint(rankedToggle, $"Applies IE to ranked {MenuText.MapsName(selectedCategory)}. Requires SongDetailsCache.");
-        SetHoverHint(colorsToggle, ColorsInteractable ? ColorsHint : ChromaColorsHint);
+        SetHoverHint(rankedToggle, RankedHint);
+        SetHoverHint(colorsToggle, ColorsHint);
     }
 
     private static void SetHoverHint(GameObject? setting, string text)

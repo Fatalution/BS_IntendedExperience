@@ -13,7 +13,7 @@
         </horizontal>
         <toggle-setting id="ranked-toggle" text="~apply-to-ranked-text" value="apply-to-ranked" bind-value="true" apply-on-change="true"
                         interactable="~song-details-cache-available"
-                        hover-hint="Applies IE to ranked GLS maps. Requires SongDetailsCache."/>
+                        hover-hint="~ranked-hint"/>
         <toggle-setting text="Enable All Effects" value="force-all-effects" bind-value="true" apply-on-change="true"
                         hover-hint="Sets environment effects to All Effects."/>
         <toggle-setting text="Use Map Environment" value="force-map-environment" bind-value="true" apply-on-change="true"
@@ -23,7 +23,7 @@
                         hover-hint="Reverts the BeatSaberPlus effects brightness override to 100%. Requires BeatSaberPlus GameTweaker."/>
         <toggle-setting id="colors-toggle" text="Use Intended Colors" value="force-intended-colors" bind-value="true" apply-on-change="true"
                         interactable="~colors-interactable"
-                        hover-hint="Sets color override to Notes Only and uses the correct color scheme for the environment, or the map's own SongCore color scheme if it has one."/>
+                        hover-hint="~colors-hint"/>
 
         <horizontal pref-height="3"/>
         <toggle-setting text="Apply to replays" value="apply-to-replays" apply-on-change="true"
