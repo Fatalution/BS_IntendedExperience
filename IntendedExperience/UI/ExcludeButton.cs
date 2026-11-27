@@ -9,13 +9,16 @@ using Zenject;
 
 namespace IntendedExperience.UI;
 
-/// <summary>Small button beside Play that toggles whether the selected map is excluded.</summary>
+/// <summary>
+/// Small button beside Play that turns IE off (excludes) or, on ranked maps whose type is turned off for ranked maps,
+/// on (includes) for the selected map.
+/// </summary>
 [UsedImplicitly]
 internal class ExcludeButton : IInitializable, IDisposable, INotifyPropertyChanged
 {
     private const string ResourcePath = "IntendedExperience.UI.ExcludeButton.bsml";
-    private const string ActiveText = "<color=#FF9933>IE</color>";
-    private const string ExcludedText = "<color=#808080><s>IE</s></color>";
+    private const string ActiveText = "<color=" + MenuText.HighlightColor + ">IE</color>";
+    private const string ExcludedText = "<color=" + MenuText.DimColor + "><s>IE</s></color>";
     private const string ActiveHint = "Click to disable IE for this map. This will be saved.";
     private const string ExcludedHint = "Click to enable IE for this map. This will be saved.";
 

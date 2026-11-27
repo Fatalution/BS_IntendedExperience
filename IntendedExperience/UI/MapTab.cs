@@ -19,9 +19,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
     // IE only applies to solo-style launches (Solo, Party, and mod flows like Multiplayer+), not Online or Campaign.
     private const MenuType TabMenus = MenuType.Solo | MenuType.Custom;
 
-    // Same orange as the tinted Play button.
-    private const string HighlightColor = "#FF9933";
-    private const string NothingToChangeText = $"<color={HighlightColor}>Nothing to change.</color>";
+    private const string NothingToChangeText = "<color=" + MenuText.HighlightColor + ">Nothing to change.</color>";
+    private const string WillApplyText = "<color=" + MenuText.HighlightColor + ">This launch will apply:</color>";
 
     private readonly GameplaySetup gameplaySetup;
     private readonly LaunchPreview launchPreview;
@@ -50,14 +49,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
             if (launchPreview.Map == null)
                 return "No map selected.";
 
-            string type = launchPreview.Category switch
-            {
-                MapCategory.Gls => "GLS",
-                MapCategory.Modcharts => "Modchart",
-                MapCategory.Chroma => "Chroma",
-                _ => "Legacy"
-            };
-            return launchPreview.Ranked ? $"<b>{type}</b> · {RankedText.Title}" : $"<b>{type}</b>";
+            string type = $"<b>{MenuText.TypeName(launchPreview.Category)}</b>";
+            return launchPreview.Ranked ? $"{type} · {MenuText.RankedTitle}" : type;
         }
     }
 
@@ -71,8 +64,8 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
                 return "";
             if (!masterSwitch.Enabled)
                 return "Intended Experience is turned off.";
-            if (launchPreview.SkippedRanked)
-                return $"Turned off for {RankedText.Lower} {RankedMapsText} in settings.";
+            if (launchPreview is { SkippedRanked: true, Category: { } category })
+                return $"Turned off for {MenuText.Ranked} {MenuText.MapsName(category)} in settings.";
             if (!launchPreview.Qualifies)
                 return NothingToChangeText;
             if (launchPreview.Excluded)
@@ -80,20 +73,12 @@ internal class MapTab : IInitializable, IDisposable, INotifyPropertyChanged
             if (launchPreview.Plan.IsEmpty)
                 return NothingToChangeText;
 
-            return $"<color={HighlightColor}>This launch will apply:</color>";
+            return WillApplyText;
         }
     }
 
     [UIValue("changes-text")]
     public string ChangesText => AppliesChanges ? launchPreview.Plan.DescribeChanges() : "";
-
-    // The selected map's type as it follows "ranked".
-    private string RankedMapsText => launchPreview.Category switch
-    {
-        MapCategory.Modcharts => "modcharts",
-        MapCategory.Chroma => "Chroma maps",
-        _ => "GLS maps"
-    };
 
     private bool AppliesChanges => launchPreview.Map != null && masterSwitch.Enabled && launchPreview.Qualifies
                                    && !launchPreview.Excluded && !launchPreview.Plan.IsEmpty;

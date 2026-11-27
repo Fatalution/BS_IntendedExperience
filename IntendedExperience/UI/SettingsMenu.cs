@@ -28,7 +28,6 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 #endif
     private const string ResourcePath = "IntendedExperience.UI.SettingsMenu.bsml";
     private const string RowResourcePath = "IntendedExperience.UI.ExcludedMapRow.bsml";
-    private const string CustomLevelPrefix = "custom_level_";
 
     // ---- Colors toggle hints ----
     private const string ColorsHint = "Sets color override to Notes Only and uses the correct color scheme for the environment, "
@@ -37,12 +36,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
 
     // ---- Map type switch: cells in MapCategory order ----
     private static readonly List<object> CategoryNames = new() { "GLS Maps", "Modcharts", "Chroma Maps" };
-    private static readonly string[] RankedHints =
-    {
-        "Applies IE to ranked GLS maps. Requires SongDetailsCache.",
-        "Applies IE to ranked modcharts. Requires SongDetailsCache.",
-        "Applies IE to ranked Chroma maps. Requires SongDetailsCache."
-    };
+    // Bound values that follow the picked map type.
     private static readonly string[] RuleProperties =
     {
         nameof(ApplyToRanked), nameof(ForceAllEffects), nameof(ForceIntendedColors), nameof(ForceMapEnvironment),
@@ -85,6 +79,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // ---- Rules of the map type picked in the switch ----
     [UIValue("categories")]
     public List<object> Categories => CategoryNames;
+
+    [UIValue("apply-to-ranked-text")]
+    public string ApplyToRankedText => $"Apply to {MenuText.Ranked} maps";
 
     [UIValue("apply-to-ranked")]
     public bool ApplyToRanked { get => SelectedRules.ApplyToRanked; set => SelectedRules.ApplyToRanked = value; }
@@ -223,7 +220,7 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
     // Hints that depend on the picked map type.
     private void UpdateHints()
     {
-        SetHoverHint(rankedToggle, RankedHints[(int)selectedCategory]);
+        SetHoverHint(rankedToggle, $"Applies IE to ranked {MenuText.MapsName(selectedCategory)}. Requires SongDetailsCache.");
         SetHoverHint(colorsToggle, ColorsInteractable ? ColorsHint : ChromaColorsHint);
     }
 
@@ -287,9 +284,9 @@ internal class SettingsMenu : IInitializable, IDisposable, INotifyPropertyChange
         string? mappers = level == null ? null : string.Join(", ", level.allMappers);
 #endif
         if (level == null)
-            return $"<color=#808080>Unknown map ({levelId.Replace(CustomLevelPrefix, string.Empty)})</color>";
+            return $"<color={MenuText.DimColor}>Unknown map ({CustomLevels.HashOf(levelId) ?? levelId})</color>";
 
-        string mapperText = string.IsNullOrEmpty(mappers) ? string.Empty : $" <color=#808080>[{mappers}]</color>";
+        string mapperText = string.IsNullOrEmpty(mappers) ? string.Empty : $" <color={MenuText.DimColor}>[{mappers}]</color>";
         return $"{level.songName} <size=80%>- {level.songAuthorName}</size>{mapperText}";
     }
 

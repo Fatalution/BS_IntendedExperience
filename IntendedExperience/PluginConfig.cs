@@ -33,7 +33,7 @@ internal class PluginConfig
     public virtual bool ShowTooltips { get; set; } = true;
     public virtual bool ShowInSettingsSetter { get; set; } = false;
 
-    // ---- Exclusions ----
+    // ---- Per map, set with the IE button ----
     [NonNullable, UseConverter(typeof(ListConverter<string>))]
     public virtual List<string> ExcludedLevelIds { get; set; } = new();
     // Ranked maps IE still applies to while their type is turned off for ranked maps.

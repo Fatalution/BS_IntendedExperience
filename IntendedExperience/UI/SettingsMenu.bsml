@@ -11,7 +11,7 @@
         <horizontal pref-height="8" child-control-width="true" child-expand-width="true">
             <text-segments contents="categories" select-cell="select-category"/>
         </horizontal>
-        <toggle-setting id="ranked-toggle" text="Apply to &lt;color=#FFD54F&gt;ranked&lt;/color&gt; maps" value="apply-to-ranked" bind-value="true" apply-on-change="true"
+        <toggle-setting id="ranked-toggle" text="~apply-to-ranked-text" value="apply-to-ranked" bind-value="true" apply-on-change="true"
                         interactable="~song-details-cache-available"
                         hover-hint="Applies IE to ranked GLS maps. Requires SongDetailsCache."/>
         <toggle-setting text="Enable All Effects" value="force-all-effects" bind-value="true" apply-on-change="true"
