@@ -52,6 +52,8 @@ internal class LaunchPlanner
 #endif
     }
 
+    /// <param name="map">The difficulty being launched.</param>
+    /// <param name="settings">The settings the launch would use without IE.</param>
     /// <param name="settingsSetterApplies">
     /// Heck applies the map's Settings Setter for this launch. When it doesn't, IE also changes the settings the
     /// Settings Setter would have set.
